@@ -33,22 +33,3 @@ class PostgreSQLClientPool extends SQLClientPool
 exports.PostgreSQLConnectionFactory = PostgreSQLConnectionFactory
 exports.PostgreSQLClient = PostgreSQLClient
 exports.PostgreSQLClientPool = PostgreSQLClientPool
-
-# class PostgreSQLClient extends SQLClient
-#   constructor:(options...)->
-#     super(options...,new PostgreSQLConnectionFactory())
-
-# pool = new SQLClientPool('postgres://inote_test_user:password@localhost/inote_test_db',new PostgreSQLConnectionFactory())
-# pool.borrow (err,client)->
-#   if err?
-#     console.error err
-#   else
-#     client.execute "SELECT ?::INT AS number",['1'], (err,result)->
-#       if err?
-#         console.error err
-#       else
-#         console.log result
-#       pool.return client, ()=>
-#         console.log pool.borrowed
-#         console.log pool.returned
-#         console.log "Done."
