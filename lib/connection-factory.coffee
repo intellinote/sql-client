@@ -20,6 +20,6 @@ class ConnectionFactory
       callback(new Error("execute not implemented; please override"))
 
   pre_process_sql:(sql,bindvars,callback)=>
-    callback(err,sql,bindvars)
+    callback(null,sql,bindvars)
 
 exports.ConnectionFactory = ConnectionFactory
