@@ -1,9 +1,9 @@
 {
   "name"        : "sql-client",
   "version"     : "0.0.1",
-  "description" : "A dirt-simple SQL client abstraction",
-  "repository"  : { "type": "git", "url": "https://github.com/intellinote/amqp-util.git" },
-  "bugs"        : { "url": "https://github.com/intellinote/amqp-util/issues" },
+  "description" : "A dirt-simple SQL client abstraction.",
+  "repository"  : { "type": "git", "url": "https://github.com/intellinote/sql-client.git" },
+  "bugs"        : { "url": "https://github.com/intellinote/sql-client/issues" },
   "license"     : "MIT",
   "author"      : "Intellinote <https://www.intellinote.net/>",
   "dependencies": {
