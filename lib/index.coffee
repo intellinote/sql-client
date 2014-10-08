@@ -7,11 +7,12 @@ LIB_DIR   = if fs.existsSync(LIB_COV) then LIB_COV else LIB
 
 export_source_file = (file)->
   target = exports
-  if Array.isArray(file)
-    for p in file[0...-1]
-      target[p] ?= {}
-      target = target[p]
-    file = path.join(file...)
+  #{ currently un-used
+  #{ if Array.isArray(file)
+  #{   for p in file[0...-1]
+  #{     target[p] ?= {}
+  #{     target = target[p]
+  #{   file = path.join(file...)
   exported = require path.join(LIB_DIR,file)
   for k,v of exported
     target[k] = v
@@ -34,6 +35,4 @@ for [required_module, file] in conditional_sources
     require(required_module)
     export_source_file(file)
   catch err
-    console.log("required module not available so do not load source file")
-
-console.log exports
+    # ignored; required module not available so do not load source file
