@@ -29,6 +29,7 @@ for file in sources
 conditional_sources = [
   ['pg', 'postgresql-client' ]
   ['mysql', 'mysql-client' ]
+  ['sqlite3', 'sqlite3-client' ]
  ]
 
 for [required_module, file] in conditional_sources

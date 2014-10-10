@@ -9,14 +9,16 @@ index     = require(path.join(LIB_DIR,'index'))
 
 describe "index",->
 
-  it "exports SQLClient", (done)->
-    index.SQLClient.should.exist
-    done()
+  expected = [
+    'ConnectionFactory'
+    'SQLClient'
+    'SQLClientPool'
+    'PostgreSQLClient'
+    'MySQLClient'
+    'SQLite3Client'
+  ]
 
-  it "exports SQLClientPool", (done)->
-    index.SQLClientPool.should.exist
-    done()
-
-  it "exports PostgreSQLClient", (done)->
-    index.PostgreSQLClient.should.exist
-    done()
+  for expect in expected
+    it "exports #{expect}", (done)->
+      index[expect].should.exist
+      done()
