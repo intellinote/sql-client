@@ -59,7 +59,7 @@ to the `dependencies` or `devDependencies` part of your `package.json` file.
 
 ### Database-Specific Types
 
-The *sql-client* module bundles support for one or more database
+The *sql-client* module bundles support for several database
 platforms.
 
 These clients are generally implemented as thin wrappers around
@@ -94,6 +94,10 @@ like this:
  * **PostgreSQLClient** / **PostgreSQLClientPool** -
    a `ConnectionFactory` implementation that wraps
    [**node-postgres**](https://github.com/brianc/node-postgres)
+
+ * **MySQLClient** / **MySQLClientClientPool** -
+   a `ConnectionFactory` implementation that wraps
+   [**mysql**](https://github.com/felixge/node-mysql/)
 
 ## Hacking
 
