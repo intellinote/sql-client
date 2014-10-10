@@ -83,3 +83,8 @@ Should you want to remove this test user and database, you can run:
 which will execute the
 [drop-mysql-test-db.sql](./drop-mysql-test-db.sql)
 script.
+
+## SQLite3
+
+The SQLite tests use a transient, in-memory database. No other
+configuration is needed.

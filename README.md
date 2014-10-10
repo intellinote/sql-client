@@ -1,7 +1,11 @@
 # SQL-CLIENT
 
 **sql-client** is a [Node.js](http://nodejs.org/) library that defines
-a simple and consistent abstraction for interacting with a relational database.
+a simple and consistent abstraction for interacting with a relational
+database.
+
+Currently PostgeSQL, MySQL and SQLite3 are supported, and support for
+additional database platforms isn't difficult to implement.
 
 <!-- toc -->
 
@@ -60,7 +64,19 @@ to the `dependencies` or `devDependencies` part of your `package.json` file.
 ### Database-Specific Types
 
 The *sql-client* module bundles support for several database
-platforms.
+platforms.  Specifically:
+
+ * **PostgreSQLClient** / **PostgreSQLClientPool** -
+   a `ConnectionFactory` implementation that wraps
+   [*node-postgres*](https://github.com/brianc/node-postgres).
+
+ * **MySQLClient** / **MySQLClientPool** -
+   a `ConnectionFactory` implementation that wraps
+   [*mysql*](https://github.com/felixge/node-mysql/).
+
+ * **SQLite3Client** / **SQLite3ClientPool** -
+   a `ConnectionFactory` implementation that wraps
+   [*sqlite3*](https://github.com/mapbox/node-sqlite3).
 
 These clients are generally implemented as thin wrappers around
 existing database-specific client modules.
@@ -90,14 +106,6 @@ like this:
       },
       "...":"...and so on..."
     }
-
- * **PostgreSQLClient** / **PostgreSQLClientPool** -
-   a `ConnectionFactory` implementation that wraps
-   [**node-postgres**](https://github.com/brianc/node-postgres)
-
- * **MySQLClient** / **MySQLClientClientPool** -
-   a `ConnectionFactory` implementation that wraps
-   [**mysql**](https://github.com/felixge/node-mysql/)
 
 ## Hacking
 
