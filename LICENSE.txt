@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------
-This software and its accompanying documentation is made available
-under the MIT License.
+                      This software and its accompanying documentation
+                              is made available under the MIT License.
 ----------------------------------------------------------------------
 Copyright (c) 2014 Intellinote
 
