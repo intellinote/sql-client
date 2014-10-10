@@ -51,8 +51,35 @@ script.
 
 Should you want to remove this test user and database, you can run:
 
-    sudo su postgres -c "psql -Upostgres -f  ./test/destroy-postgresql-test-db.sql"
+    sudo su postgres -c "psql -Upostgres -f  ./test/drop-postgresql-test-db.sql"
 
 which will execute the
-[destroy-postgresql-test-db.sql](./destroy-postgresql-test-db.sql)
+[drop-postgresql-test-db.sql](./drop-postgresql-test-db.sql)
+script.
+
+## MySQL
+
+To test the MySQLClient classes, you'll need to create a user and
+database within an accessible instance of MySQL.
+
+Specifically, you'll need to create the account `sqlclient_test_u`
+and database `sqclient_test_db` in a local database instance. (More
+generally, the database to connect to is specified by the
+`CONNECT_OPTS` variable defined in `test-mysql-client.coffee`.)
+
+Assuming you have a local instance of MySQL running you can
+create this account by running:
+
+    mysql -u root -p < ./test/create-mysql-test-db.sql
+
+which will execute the
+[create-mysql-test-db.sql](./create-mysql-test-db.sql)
+script.
+
+Should you want to remove this test user and database, you can run:
+
+    mysql -u root -p < ./test/create-mysql-test-db.sql
+
+which will execute the
+[drop-mysql-test-db.sql](./drop-mysql-test-db.sql)
 script.

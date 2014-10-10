@@ -16,8 +16,10 @@
     "marked"                : "latest",
     "marked-toc"            : "latest",
     "mocha"                 : "latest",
+    "mysql"                 : "latest",
     "pg"                    : "latest",
-    "should"                : "latest"
+    "should"                : "latest",
+    "sqlite3"               : "latest"
   },
   "main": "lib/index.js",
   "scripts": { },
