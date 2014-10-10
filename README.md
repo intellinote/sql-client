@@ -36,6 +36,87 @@ and you can add it to your project as a dependency by adding a line like:
 
 to the `dependencies` or `devDependencies` part of your `package.json` file.
 
+## Using
+
+Let's use have `MySQLClient` and `MySQLClientPool`, as an
+example. These classes extend `SQLClient` and `SQLClientPool`,
+respectively. (Also see `PostgreSQLClient` and `SQLite3Client`.)
+
+### SQLClient
+
+Ignoring error handling (i.e., not checking for errors passed to the
+callbacks), a basic end-to-end example of using `MySQLClient` to query the
+database looks like this:
+
+
+```javascript
+var mysql = require('sql-client');
+var params = { host: 'localhost', user: 'scott', password: 'tiger' };
+var client = new mysql.MySQLClient(params);
+client.connect( function(err) {
+  client.execute( "SELECT ? + 3 AS x", [ 4 ], function (err,rows,fields) {
+    console.log("The answer is",rows[0].x);
+    client.disconnect();
+  }):
+});
+```
+
+Actually, the `client.connect` call is optional, since it will be
+automatically invoked by `client.execute` if it hasn't been called
+yet. Hence the query above is equivalent to:
+
+
+```javascript
+var mysql = require('sql-client');
+var params = { host: 'localhost', user: 'scott', password: 'tiger' };
+var client = new mysql.MySQLClient(params);
+client.execute( "SELECT ? + 3 AS x", [ 4 ], function (err,rows,fields) {
+  console.log("The answer is",rows[0].x);
+  client.disconnect();
+}):
+```
+
+### SQLClientPool
+
+The `SQLClientPool` type adds basic connection pooling logic (for
+database clients that don't provide native pooling).
+
+When using a pool, we obtain a `SQLClient` instance by calling
+`SQLClientPool.borrow` and must take care to return it by calling
+`SQLClientPool.return` when we are done with it.
+
+For example:
+
+```javascript
+var mysql = require('sql-client');
+var params = { host: 'localhost', user: 'scott', password: 'tiger' };
+
+function setupPool(callback) {
+  var pool_config = { max_idle: 3; }
+  var pool = new mysql.MySQLClientPool(params);
+  pool.open( function(err) { callback(pool); } );
+}
+
+function teardownPool(pool) {
+  pool.close();
+}
+
+function runQuery(callback) {
+  pool.borrow( function(err,client) {
+    client.execute( "SELECT ? + 3 AS x", [ 4 ], function (err,rows,fields) {
+      console.log("The answer is",rows[0].x);
+      callback();
+    }):
+  });
+}
+
+setupPool( function(pool) {
+  runQuery( function() {
+    teardownPool( pool );
+  };
+}
+```
+
 ## Contents
 
 *sql-client* provides the following.

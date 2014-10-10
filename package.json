@@ -1,7 +1,8 @@
 {
   "name"        : "sql-client",
-  "version"     : "0.1.0",
+  "version"     : "0.2.0",
   "description" : "A dirt-simple SQL client abstraction (currently) supporting PostgreSQL, MySQL and SQLite.",
+  "keywords"    : [ "SQL","client","connection", "pool","database","Postgres","PostgeSQL","mySQL","SQLite","SQLite3" ],
   "repository"  : { "type": "git", "url": "https://github.com/intellinote/sql-client.git" },
   "bugs"        : { "url": "https://github.com/intellinote/sql-client/issues" },
   "license"     : "MIT",
