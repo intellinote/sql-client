@@ -10,8 +10,8 @@ COFFEE_EXE ?= ./node_modules/.bin/coffee
 NODE_EXE ?= node
 COFFEE_COMPILE ?= $(COFFEE_EXE) -c
 COFFEE_COMPILE_ARGS ?=
-COFFEE_SRCS ?= $(wildcard lib/*.coffee *.coffee)
-COFFEE_TEST_SRCS ?= $(wildcard test/*.coffee)
+COFFEE_SRCS ?= $(wildcard lib/*.coffee *.coffee lib/*/*.coffee)
+COFFEE_TEST_SRCS ?= $(wildcard test/*.coffee test/*/*.coffee)
 COFFEE_JS ?= ${COFFEE_SRCS:.coffee=.js}
 COFFEE_TEST_JS ?= ${COFFEE_TEST_SRCS:.coffee=.js}
 
@@ -69,7 +69,7 @@ DOCCO_EXE ?= ./node_modules/.bin/docco
 .SUFFIXES:
 
 # `.PHONY` - make targets that aren't actually files
-.PHONY: all coffee clean clean-coverage clean-docco clean-docs clean-js clean-markdown clean-module clean-node-modules clean-test-module-install coverage docco docs fully-clean-node-modules js markdown module targets test test-module-install todo
+.PHONY: all coffee clean clean-coverage clean-docco clean-docs clean-js clean-markdown clean-module clean-node-modules clean-test-module-install coverage docco docs fully-clean-node-modules js markdown module targets test test-module-install todo clean-bin bin js-bin coffee-bin
 
 # `all` - the default target
 all: help
@@ -129,7 +129,7 @@ help:
 ################################################################################
 # CLEAN UP TARGETS
 
-clean: clean-coverage clean-docco clean-docs clean-js clean-module clean-test-module-install clean-node-modules
+clean: clean-coverage clean-docco clean-docs clean-js clean-module clean-test-module-install clean-node-modules clean-bin
 
 clean-test-module-install:
 	rm -rf ../testing-module-install
@@ -170,9 +170,10 @@ clean-markdown:
 
 # TODO - confirm that all JSON files in config directory are valid when packaging
 
-module: js test docs coverage
+module: js bin test docs coverage
 	mkdir -p $(MODULE_DIR)
 	cp $(PACKAGE_JSON) $(MODULE_DIR)
+	cp -r bin $(MODULE_DIR)
 	cp -r docs $(MODULE_DIR)
 	cp README.md $(MODULE_DIR)
 	cp *.txt $(MODULE_DIR)
@@ -184,7 +185,7 @@ module: js test docs coverage
 	find module -type f -name "*.x" -exec rm -f {} \;
 
 test-module-install: clean-test-module-install js test docs coverage module
-	mkdir ../testing-module-install; cd ../testing-module-install; npm install "$(CURDIR)/module"; node -e "require('assert').ok(require('sql-client').SQLClient);" && cd $(CURDIR) && rm -rf ../testing-module-install && echo "It worked!"
+	mkdir ../testing-module-install; cd ../testing-module-install; npm install "$(CURDIR)/module"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf ../testing-module-install && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
 
 $(NODE_MODULES): $(PACKAGE_JSON)
 	$(NPM_EXE) $(NPM_ARGS) prune
@@ -206,6 +207,17 @@ js: coffee $(COFFEE_JS) $(COFFEE_TEST_JS)
 .coffee.js:
 	$(COFFEE_COMPILE) $(COFFEE_COMPILE_ARGS) $<
 $(COFFEE_JS_OBJ): $(NODE_MODULES) $(COFFEE_SRCS) $(COFFEE_TEST_SRCS)
+
+js-bin: js
+	$(foreach f,$(shell ls ./lib/bin/*.js 2>/dev/null),chmod a+x "$(f)" && cp bin/.shebang.sh "bin/`basename $(f) | sed 's/...$$//'`";)
+
+coffee-bin:
+	$(foreach f,$(shell ls ./lib/bin/*.coffee 2>/dev/null),chmod a+x "$(f)" && cp bin/.shebang.sh "bin/`basename $(f) | sed 's/.......$$//'`";)
+
+bin: coffee-bin
+
+clean-bin:
+	$(foreach f,$(shell ls ./lib/bin/*.coffee 2>/dev/null),rm -rf "bin/`basename $(f) | sed 's/.......$$//'`";)
 
 ################################################################################
 # TEST TARGETS
