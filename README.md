@@ -188,6 +188,26 @@ like this:
       "...":"...and so on..."
     }
 
+### Executables
+
+When installed via `npm`, the *sql-client* module exposes a basic
+command line tool for exectuting arbitrary SQL (read from STDIN or
+files enumerated on the command line).
+
+For example:
+
+    echo "SELECT 3+5 as FOO" | mysql-runner --db "mysql://sqlclient_test_u:password@localhost/sqlclient_test_db"
+
+    echo "SELECT 3+5 as FOO" | postgresql-runner --db "postgres://sqlclient_test_user:password@localhost/sqlclient_test_db"
+
+    echo "SELECT 3+5 as FOO" | sqlite3-runner --db ":memory:"
+
+These files are available in the `./lib/bin`, or (after `make bin` is
+run) in the `./bin` directory, or (after `npm install` is run) in the
+`./node_modules/.bin` directory.
+
+Pass the command line parameter `--help` for more help.
+
 ## Hacking
 
 While not strictly required, you are *strongly* encouraged to take
