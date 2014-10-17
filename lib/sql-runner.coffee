@@ -16,7 +16,7 @@ class SQLRunner
       for f in ['stop_on_error']
         this[f] = options[f] if options[f]
     if client?
-      @set_client(cient)
+      @set_client(client)
 
   set_client:(client)=>
     @client = client
