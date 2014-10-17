@@ -139,7 +139,7 @@ setupPool( function(pool) {
      - `execute`
 
    Once defined, a `ConnectionFactory` can be dropped right in to the
-   `SQLClient` and `SQLClientPool` types to aquire the interface and
+   `SQLClient` and `SQLClientPool` types to acquire the interface and
    functionality they provide.
 
 ### Database-Specific Types
@@ -191,7 +191,7 @@ like this:
 ### Executables
 
 When installed via `npm`, the *sql-client* module exposes a basic
-command line tool for exectuting arbitrary SQL (read from STDIN or
+command line tool for executing arbitrary SQL (read from STDIN or
 files enumerated on the command line).
 
 For example:
@@ -300,7 +300,7 @@ guidelines can help streamline the process for everyone.
       [./test/](https://github.com/intellinote/sql-client/tree/master/test)),
       but your report is welcome with or without that.
 
- * Our preferered channel for contributions or changes to the source
+ * Our preferred channel for contributions or changes to the source
    code and documentation is as a Git "patch" or "pull-request".
 
     - If you've never submitted a pull-request, here's one way to go
@@ -351,4 +351,4 @@ For more information about Intellinote, visit
 
 Interested in working for Intellinote?  Visit
 [the careers section of our website](https://www.intellinote.net/careers/)
-to see our latest techincal (and non-technical) openings.
+to see our latest technical (and non-technical) openings.
