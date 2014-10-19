@@ -333,6 +333,10 @@ these guidelines than no contribution at all.  If you are confused or
 put-off by any of the above, your contribution is still welcome.  Feel
 free to contribute or comment in whatever channel works for you.
 
+---
+
+[![Intellinote]](https://www.intellinote.net/wp-content/themes/intellinote/images/logo@2x.png)](https://www.intellinote.net/)
+
 ## About Intellinote
 
 Intellinote is a multi-platform (web, mobile, and tablet) software
@@ -340,7 +344,7 @@ application that helps businesses of all sizes capture, collaborate
 and complete work, quickly and easily.
 
 Users can start with capturing any type of data into a note, turn it
-into a Task, assign it to others, start a discussion around it, add a
+into a task, assign it to others, start a discussion around it, add a
 file and share – with colleagues, managers, team members, customers,
 suppliers, vendors and even classmates. Since all of this is done in
 the context of Private and Public Workspaces, users retain end-to-end
@@ -354,3 +358,5 @@ For more information about Intellinote, visit
 Interested in working for Intellinote?  Visit
 [the careers section of our website](https://www.intellinote.net/careers/)
 to see our latest technical (and non-technical) openings.
+
+---
