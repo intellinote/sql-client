@@ -27,7 +27,7 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "test":"./node_modules/.bin/mocha -t 12000  -R list --compilers coffee:coffee-script/register ./test/test-*.coffee"
+    "test":"./node_modules/.bin/mocha -t 2000  -R list --compilers coffee:coffee-script/register ./test/test-sql-client.coffee ./test/test-sql-client-pool.coffee ./test/test-connection-factory.coffee"
   },
   "bin": {
     "mysql-runner": "./bin/mysql-runner",
