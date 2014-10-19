@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/intellinote/sql-client.svg?branch=master)](https://travis-ci.org/intellinote/sql-client)
+
 # SQL-CLIENT
 
 **sql-client** is a [Node.js](http://nodejs.org/) library that defines
