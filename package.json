@@ -26,7 +26,9 @@
     "sqlite3"               : "latest"
   },
   "main": "lib/index.js",
-  "scripts": { },
+  "scripts": {
+    "test":"./node_modules/.bin/mocha -t 12000  -R list --compilers coffee:coffee-script/register ./test/test-*.coffee"
+  },
   "bin": {
     "mysql-runner": "./bin/mysql-runner",
     "postgresql-runner": "./bin/postgresql-runner",
