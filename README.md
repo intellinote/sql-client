@@ -1,6 +1,4 @@
-# SQL-CLIENT
-  [![Build Status](https://travis-ci.org/intellinote/sql-client.svg?branch=master)](https://travis-ci.org/intellinote/sql-client)
-  [![NPM version](https://badge.fury.io/js/sql-client.svg)](http://badge.fury.io/js/sql-client)
+# SQL-CLIENT [![Build Status](https://travis-ci.org/intellinote/sql-client.svg?branch=master)](https://travis-ci.org/intellinote/sql-client) [![NPM version](https://badge.fury.io/js/sql-client.svg)](http://badge.fury.io/js/sql-client)
 
 **sql-client** is a [Node.js](http://nodejs.org/) library that defines
 a simple and consistent abstraction for interacting with a relational
@@ -335,7 +333,7 @@ free to contribute or comment in whatever channel works for you.
 
 ---
 
-[![Intellinote]](https://www.intellinote.net/wp-content/themes/intellinote/images/logo@2x.png)](https://www.intellinote.net/)
+[![Intellinote](https://www.intellinote.net/wp-content/themes/intellinote/images/logo@2x.png)](https://www.intellinote.net/)
 
 ## About Intellinote
 
