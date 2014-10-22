@@ -5,7 +5,7 @@ LIB_COV           = path.join(HOMEDIR,'lib-cov')
 LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
 pg                = require( path.join(LIB_DIR,'postgresql-client') )
 should            = require('should')
-
+Util              = require('inote-util').Util
 # sudo su postgres -c "psql -Upostgres -f ./sql/create-database.sql"
 
 # $ cat ../rest-api/sql/create-database.sql
@@ -65,7 +65,7 @@ describe 'PostgreSQL',->
     database_available (available)->
       if available
 
-        describe 'Client',->
+        describe 'PostgreSQLClient',->
 
           it 'can connect to the database', (done)->
             client = new pg.PostgreSQLClient(CONNECT_STRING)
@@ -121,7 +121,7 @@ describe 'PostgreSQL',->
                   done()
 
 
-        describe 'ClientPool',->
+        describe 'PostgreSQLClientPool',->
 
           it 'supports borrow, execute, return pattern (default config)', (done)->
             pool = new pg.PostgreSQLClientPool(CONNECT_STRING)
@@ -142,6 +142,99 @@ describe 'PostgreSQL',->
                     pool.close (err)->
                       should.not.exist err
                       done()
+
+          it 'supports borrow, execute, return X 5 pattern (default config)', (done)->
+            pool = new pg.PostgreSQLClientPool(CONNECT_STRING)
+            pool.open (err)->
+              should.not.exist err
+              action = (e,i,l,next)=>
+                pool.borrow (err,client)->
+                  should.not.exist err
+                  should.exist client
+                  client.execute "SELECT ?::INTEGER AS x, ?::INTEGER AS y", [32,18], (err,results)->
+                    should.not.exist err
+                    should.exist results
+                    should.exist results.rows
+                    results.rows.length.should.equal 1
+                    results.rows[0].x.should.equal 32
+                    results.rows[0].y.should.equal 18
+                    pool.return client, (err)->
+                      should.not.exist err
+                      next()
+              Util.for_each_async [0...5], action, ()=>
+                pool.close (err)->
+                  should.not.exist err
+                  done()
+
+          it 'supports borrow, execute, borrow, return, execute, return X 5 pattern (default config)', (done)->
+            pool = new pg.PostgreSQLClientPool(CONNECT_STRING)
+            pool.open (err)->
+              should.not.exist err
+              action = (e,i,l,next)=>
+                pool.borrow (err,client)->
+                  should.not.exist err
+                  should.exist client
+                  client.execute "SELECT ?::INTEGER AS x, ?::INTEGER AS y", [32,18], (err,results)->
+                    should.not.exist err
+                    should.exist results
+                    should.exist results.rows
+                    results.rows.length.should.equal 1
+                    results.rows[0].x.should.equal 32
+                    results.rows[0].y.should.equal 18
+                    pool.borrow (err,client2)->
+                      should.not.exist err
+                      should.exist client2
+                      pool.return client, (err)->
+                        should.not.exist err
+                        client2.execute "SELECT ?::INTEGER AS x, ?::INTEGER AS y", [3,18], (err,results)->
+                          should.not.exist err
+                          should.exist results
+                          should.exist results.rows
+                          results.rows.length.should.equal 1
+                          results.rows[0].x.should.equal 3
+                          results.rows[0].y.should.equal 18
+                          pool.return client2, (err)->
+                            should.not.exist err
+                            next()
+              Util.for_each_async [0...5], action, ()=>
+                pool.close (err)->
+                  should.not.exist err
+                  done()
+
+          it 'supports borrow, execute, borrow, execute, return, return X 5 pattern (default config)', (done)->
+            pool = new pg.PostgreSQLClientPool(CONNECT_STRING)
+            pool.open (err)->
+              should.not.exist err
+              action = (e,i,l,next)=>
+                pool.borrow (err,client)->
+                  should.not.exist err
+                  should.exist client
+                  client.execute "SELECT ?::INTEGER AS x, ?::INTEGER AS y", [32,18], (err,results)->
+                    should.not.exist err
+                    should.exist results
+                    should.exist results.rows
+                    results.rows.length.should.equal 1
+                    results.rows[0].x.should.equal 32
+                    results.rows[0].y.should.equal 18
+                    pool.borrow (err,client2)->
+                      should.not.exist err
+                      should.exist client2
+                      client2.execute "SELECT ?::INTEGER AS x, ?::INTEGER AS y", [3,18], (err,results)->
+                        should.not.exist err
+                        should.exist results
+                        should.exist results.rows
+                        results.rows.length.should.equal 1
+                        results.rows[0].x.should.equal 3
+                        results.rows[0].y.should.equal 18
+                        pool.return client2, (err)->
+                          should.not.exist err
+                          pool.return client, (err)->
+                            should.not.exist err
+                            next()
+              Util.for_each_async [0...5], action, ()=>
+                pool.close (err)->
+                  should.not.exist err
+                  done()
 
           it 'supports borrow, execute, return pattern (max_idle=5,min_idle=3)', (done)->
             options = { min_idle:3, max_idle:5 }
