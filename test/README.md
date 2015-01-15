@@ -78,7 +78,7 @@ script.
 
 Should you want to remove this test user and database, you can run:
 
-    mysql -u root -p < ./test/create-mysql-test-db.sql
+    mysql -u root -p < ./test/drop-mysql-test-db.sql
 
 which will execute the
 [drop-mysql-test-db.sql](./drop-mysql-test-db.sql)
