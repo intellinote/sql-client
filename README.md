@@ -38,7 +38,7 @@ to the `dependencies` or `devDependencies` part of your `package.json` file.
 
 ## Using
 
-Let's use have `MySQLClient` and `MySQLClientPool`, as an
+Let's use `MySQLClient` and `MySQLClientPool` as an
 example. These classes extend `SQLClient` and `SQLClientPool`,
 respectively. (Also see `PostgreSQLClient` and `SQLite3Client`.)
 
