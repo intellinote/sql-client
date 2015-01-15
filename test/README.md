@@ -63,7 +63,7 @@ To test the MySQLClient classes, you'll need to create a user and
 database within an accessible instance of MySQL.
 
 Specifically, you'll need to create the account `sqlclient_test_u`
-and database `sqclient_test_db` in a local database instance. (More
+and database `sqlclient_test_db` in a local database instance. (More
 generally, the database to connect to is specified by the
 `CONNECT_OPTS` variable defined in `test-mysql-client.coffee`.)
 
