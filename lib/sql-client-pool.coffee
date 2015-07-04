@@ -156,6 +156,13 @@ class SQLClientPool
               @pool.push client
               callback?()
 
+  # CONFIGUATION OPTIONS:
+  #  - 'min_idle' - minimum number of idle connections in an "empty" pool
+  #  - 'max_idle' - maximum number of idle connections in a "full" pool
+  #  - 'max_active' - maximum number of connections active at one time
+  #  - 'when_exhausted' - what to do when max_active is reached ("GROW","BLOCK","FAIL"),
+  #  - 'max_wait' - when `when_exhausted` is `BLOCK` max time (in millis) to wait before failure, use < 0 for no maximum
+  #  - 'wait_interval'  - when `when_exhausted` is `BLOCK`, amount of time to wait before rechecking if connections are available
   _config:(opts,callback)=>
     opts ?= {}
     new_opts = @_clone(@pool_options)
