@@ -143,6 +143,21 @@ describe 'PostgreSQL',->
                       should.not.exist err
                       done()
 
+          it 'supports execute method to wrapping borrow/return logic (default config)', (done)->
+            pool = new pg.PostgreSQLClientPool(CONNECT_STRING)
+            pool.open (err)->
+              should.not.exist err
+              pool.execute "SELECT ?::INTEGER AS x, ?::INTEGER AS y", [32,18], (err,results)->
+                should.not.exist err
+                should.exist results
+                should.exist results.rows
+                results.rows.length.should.equal 1
+                results.rows[0].x.should.equal 32
+                results.rows[0].y.should.equal 18
+                pool.close (err)->
+                  should.not.exist err
+                  done()
+
           it 'supports borrow, execute, return X 5 pattern (default config)', (done)->
             pool = new pg.PostgreSQLClientPool(CONNECT_STRING)
             pool.open (err)->
