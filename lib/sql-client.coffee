@@ -1,3 +1,7 @@
+DEBUG         = (/(^|,)SQLClient($|,)/i.test process?.env?.NODE_DEBUG)
+DEBUG_DDL     = (/(^|,)SQLClient\.DDL($|,)/i.test process?.env?.NODE_DEBUG)
+DEBUG_CONNECT = (/(^|,)SQLClient\.connect($|,)/i.test process?.env?.NODE_DEBUG)
+
 class SQLClient
 
   constructor:(@options...,@factory)->
@@ -5,8 +9,10 @@ class SQLClient
     @pooled_at = null
     @borrowed_at = null
     @connected_at = null
-
+    
   connect:(callback)=>
+    if DEBUG_CONNECT
+      console.log "SQLClient.connect. @connection? #{@connection?}"
     unless @connection?
       @factory.open_connection @options...,(err,connection)=>
         if err?
@@ -19,6 +25,8 @@ class SQLClient
       callback?()
 
   disconnect:(callback)=>
+    if DEBUG_CONNECT
+      console.log "SQLClient.disconnect. @connection? #{@connection?}"
     if @connection?
       @factory.close_connection @connection, (err)=>
         if err?
@@ -45,6 +53,8 @@ class SQLClient
         if err?
           callback?(err)
         else
+          if DEBUG and (DEBUG_DDL or not (/^\s((create)|(drop))\s/i.test sql))
+            console.log "SQLClient executing:",sql,bindvars
           @factory.execute(@connection,sql,bindvars,callback)
 
 exports.SQLClient = SQLClient
