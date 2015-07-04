@@ -5,7 +5,7 @@ LIB_COV          = path.join(HOMEDIR,'lib-cov')
 LIB_DIR          = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
 SQLRunner        = require( path.join(LIB_DIR,'sql-runner') ).SQLRunner
 SQLite3Client    = require( path.join(LIB_DIR,'sqlite3-client') ).SQLite3Client
-Util             = require('inote-util').Util
+ObjectUtil       = require('inote-util').ObjectUtil
 
 class SQLite3Runner extends SQLRunner
   constructor:(opts,options)->
@@ -26,7 +26,7 @@ class SQLite3Runner extends SQLRunner
     sqlite_opts = {
       d: { alias: 'db',  describe: "Databse connect string." }
     }
-    super(Util.merge(sqlite_opts,additional))
+    super(ObjectUtil.merge(sqlite_opts,additional))
 
   _handle_argv:(argv)=>
     if argv.db?
