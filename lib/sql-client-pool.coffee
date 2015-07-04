@@ -78,6 +78,18 @@ class SQLClientPool
         else
           callback?()
 
+  # borrow, execute, return, callback
+  execute:(sql,bindvars,callback)=>
+    @borrow (err,client)=>
+      if err?
+        callback(err)
+      else unless client?
+        callback(new Error("non-null client expected"))
+      else
+        client.execute sql, bindvars, (response...)=>
+          @return client, ()=>
+            callback(response...)
+          
   borrow:(callback,blocked_since)=>
     if typeof callback isnt 'function'
       throw new Error(@MESSAGES.INVALID_ARGUMENT)
