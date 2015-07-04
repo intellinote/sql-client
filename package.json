@@ -8,22 +8,23 @@
   "license"     : "MIT",
   "author"      : "Intellinote <https://www.intellinote.net/>",
   "dependencies": {
-    "inote-util": "latest",
-    "optimist": "latest",
-    "argf": "latest"
+    "inote-util": "^0.6",
+    "optimist":   "^0.6",
+    "argf":       "^0.0"
   },
   "devDependencies": {
-    "coffee-coverage"       : "latest",
-    "coffee-script"         : "latest",
-    "docco"                 : "latest",
-    "highlight.js"          : "latest",
-    "marked"                : "latest",
-    "marked-toc"            : "latest",
-    "mocha"                 : "latest",
-    "mysql"                 : "latest",
-    "pg"                    : "latest",
-    "should"                : "latest",
-    "sqlite3"               : "latest"
+    "coffee-coverage"       : "^0.5",
+    "coffee-script"         : "^1.9",
+    "docco"                 : "^0.7",
+    "highlight.js"          : "^8.6",
+    "marked"                : "^0.3",
+    "marked-toc"            : "^0.3",
+    "mocha"                 : "^2.2",
+    "mysql"                 : "^2.7",
+    "pg"                    : "^4.4",
+    "pg-native"             : "^1.8",
+    "should"                : "^7.0",
+    "sqlite3"               : "^3.0"
   },
   "main": "lib/index.js",
   "scripts": {

@@ -6,7 +6,9 @@ LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDI
 SQLClient         = require( path.join(LIB_DIR,'sql-client') ).SQLClient
 SQLClientPool     = require( path.join(LIB_DIR,'sql-client-pool') ).SQLClientPool
 ConnectionFactory = require( path.join(LIB_DIR,'connection-factory') ).ConnectionFactory
-pg                = require('pg').native
+pg                = require('pg')
+if pg?.native?
+  pg = pg.native
 
 class PostgreSQLConnectionFactory extends ConnectionFactory
   open_connection:(connect_string,callback)=>
