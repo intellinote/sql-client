@@ -11,8 +11,8 @@ mysql             = require('mysql')
 class MySQLConnectionFactory extends ConnectionFactory
   open_connection:(options,callback)=>
     connection = mysql.createConnection(options)
-    connection.connect()
-    callback(null,connection)
+    connection.connect (err)=>
+      callback(err,connection)
 
 class MySQLClient extends SQLClient
   constructor:(options...)->
