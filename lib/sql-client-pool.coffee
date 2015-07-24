@@ -30,7 +30,7 @@ class SQLClientPool
     callback(null,client)
 
   validate:(client,callback)=>
-    if client? and (not client.pooled_at? or (Date.now()-client.pooled_at) < @pool_options.max_age)
+    if client? and ( (not client.pooled_at?) or (not @pool_options?.max_age?) or ((Date.now()-client.pooled_at) < @pool_options.max_age) )
       callback(null,true,client)
     else
       callback(null,false,client)
