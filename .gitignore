@@ -12,6 +12,7 @@ hold
 *.tgz
 *.tar
 .npmrc
+sql-client-v*
 config/private.json
 config/local.json
 bin/*
