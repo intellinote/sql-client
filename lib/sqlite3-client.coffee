@@ -6,7 +6,7 @@ LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDI
 SQLClient         = require( path.join(LIB_DIR,'sql-client') ).SQLClient
 SQLClientPool     = require( path.join(LIB_DIR,'sql-client-pool') ).SQLClientPool
 ConnectionFactory = require( path.join(LIB_DIR,'connection-factory') ).ConnectionFactory
-sqlite3           = require('sqlite3').verbose();
+sqlite3           = require('sqlite3').verbose()
 
 class SQLite3ConnectionFactory extends ConnectionFactory
   open_connection:(filename,mode,callback)=>

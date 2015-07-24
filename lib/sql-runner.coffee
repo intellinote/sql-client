@@ -15,7 +15,7 @@ class SQLRunner
       options.client = null
     if options?
       for f in ['stop_on_error']
-        this[f] = options[f] if options[f]
+        @[f] = options[f] if options[f]
     if client?
       @set_client(client)
 
