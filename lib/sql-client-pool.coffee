@@ -46,12 +46,13 @@ class SQLClientPool
 
   pool:[]
   pool_options:{}
-  open:false
+  pool_is_open:false
   borrowed:0
   returned:0
   active:0
 
   constructor:(@sql_options...,@factory)->
+    @open ()->undefined
 
   open:(opts,callback)=>
     if not callback? and typeof opts is 'function'
@@ -61,14 +62,14 @@ class SQLClientPool
       throw new Error(@MESSAGES.INVALID_ARGUMENT)
     else
       @_config opts, (err)=>
-        @open = true
+        @pool_is_open = true
         callback?(err)
 
   close:(callback)=>
     if callback? and typeof callback isnt 'function'
       throw new Error(@MESSAGES.INVALID_ARGUMENT)
     else
-      @open = false
+      @pool_is_open = false
       if @pool.length > 0
         @destroy @pool.shift(),()=>
           @close(callback)
@@ -94,8 +95,8 @@ class SQLClientPool
     if typeof callback isnt 'function'
       throw new Error(@MESSAGES.INVALID_ARGUMENT)
     else
-      if not @open
-        callback new Error(@MESSAGES.NOT_OPEN)
+      if not @pool_is_open
+        callback new Error(@MESSAGES.POOL_NOT_OPEN)
       else
         if @active >= @pool_options.max_active and @pool_options.when_exhausted is 'fail'
           callback new Error(@MESSAGES.EXHAUSTED)
