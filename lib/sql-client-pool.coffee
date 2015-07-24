@@ -50,6 +50,7 @@ class SQLClientPool
   borrowed:0
   returned:0
   active:0
+  eviction_runner:null
 
   constructor:(@sql_options...,@factory)->
     @open ()->undefined
@@ -70,6 +71,10 @@ class SQLClientPool
       throw new Error(@MESSAGES.INVALID_ARGUMENT)
     else
       @pool_is_open = false
+      if @eviction_runner?
+        @eviction_runner.ref()
+        clearTimeout @eviction_runner
+        @eviction_runner = null
       if @pool.length > 0
         @destroy @pool.shift(),()=>
           @close(callback)
@@ -164,11 +169,15 @@ class SQLClientPool
   #  - 'when_exhausted' - what to do when max_active is reached ("GROW","BLOCK","FAIL"),
   #  - 'max_wait' - when `when_exhausted` is `BLOCK` max time (in millis) to wait before failure, use < 0 for no maximum
   #  - 'wait_interval'  - when `when_exhausted` is `BLOCK`, amount of time to wait before rechecking if connections are available
+  #  - 'max_age' - when a positive integer, connections that have been idle for `max_age` milliseconds will be considered invalid and eligable for eviction
+  #  - 'eviction_run_interval' - when a positive integer, the number of milliseconds between eviction runs; during an eviction run idle connections will be tested for validity and if invalid, evicted from the pool
+  #   - 'eviction_run_length' - when a positive integer, the maxiumum number of connections to examine per eviction run (when not set, all idle connections will be evamined during each eviction run)
+  #   - 'unref_eviction_runner' - unless `false`, `unref` (https://nodejs.org/api/timers.html#timers_unref) will be called on the eviction run interval timer
   _config:(opts,callback)=>
     opts ?= {}
     new_opts = @_clone(@pool_options)
     keys = Object.keys(opts)
-    for prop in [ 'min_idle','max_idle','max_active', 'when_exhausted', 'max_wait', 'wait_interval', 'max_age' ]
+    for prop in [ 'min_idle','max_idle','max_active', 'when_exhausted', 'max_wait', 'wait_interval', 'max_age', 'eviction_run_interval', 'eviction_run_length', 'unref_eviction_runner']
       if prop in keys
         new_opts[prop] = opts[prop]
     if typeof new_opts.max_idle is 'number' and new_opts.max_idle < 0
@@ -181,26 +190,45 @@ class SQLClientPool
     new_opts.max_wait = Number.MAX_VALUE if typeof new_opts.max_wait isnt 'number' or new_opts.max_wait < 0
     new_opts.wait_interval = @DEFAULT_WAIT_INTERVAL if typeof new_opts.wait_interval isnt 'number' or new_opts.wait_interval < 0
     new_opts.when_exhausted = 'grow' unless new_opts.when_exhausted in [ 'grow','block','fail' ]
-    new_opts.block_timeout = null unless typeof new_opts.block_timeout is 'number' and new_opts.block_timeout > 0
     new_opts.max_age = Number.MAX_VALUE if not new_opts.max_age? or new_opts.max_age < 0
     @pool_options = new_opts
     @_reconfig(callback)
 
   _reconfig:(callback)=>
+    if @eviction_runner?
+      @eviction_runner.ref()
+      clearTimeout @eviction_runner
+      @eviction_runner = null
     @_evict (err)=>
       if err?
         callback?(err)
       else
-        @_prepopulate callback
+        @_prepopulate (x...)=>
+          if @pool_options?.eviction_run_interval? and @pool_options.eviction_run_interval > 0
+            @eviction_runner = setInterval(@_eviction_run,@pool_options.eviction_run_interval)
+            unless @pool_options?.unref_eviction_runner is false
+              @eviction_runner.unref()
+          callback(x...)
 
   _evict:(callback)=>
+    @_eviction_run(0,callback)
+    
+  _eviction_run:(num_to_check,callback)=>
+    if typeof num_to_check is 'function' and not callback?
+      callback = num_to_check
+      num_to_check = null
     new_pool = []
+    num_checked = 0
     while @pool.length > 0
       client = @pool.shift()
-      if new_pool.length < @pool_options.max_idle and @_is_valid(client)
-        new_pool.push client
+      if (not num_to_check?) or num_to_check <= 0 or num_checked < num_to_check
+        num_checked += 1
+        if new_pool.length < @pool_options.max_idle and @_is_valid(client)
+          new_pool.push client
+        else
+          client.disconnect()
       else
-        client.disconnect()
+        new_pool.push client
     @pool = new_pool
     callback?()
 
