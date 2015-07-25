@@ -150,6 +150,13 @@ platforms.  Specifically:
  * **PostgreSQLClient** / **PostgreSQLClientPool** -
    a `ConnectionFactory` implementation that wraps
    [*node-postgres*](https://github.com/brianc/node-postgres).
+   
+ * **PostgreSQLClient2** / **PostgreSQLClientPool2** -
+   a `ConnectionFactory` implementation that wraps
+   [*node-postgres*](https://github.com/brianc/node-postgres)
+   but using node-postgres's built in pooling. (This client should
+   be used with sql-client pool with max_idle = 0 to allow
+   node-postgres to handle the pooling directly.)
 
  * **MySQLClient** / **MySQLClientPool** -
    a `ConnectionFactory` implementation that wraps

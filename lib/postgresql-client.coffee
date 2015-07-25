@@ -22,7 +22,6 @@ class PostgreSQLConnectionFactory extends ConnectionFactory
       sql = sql.replace(/\?/g,(()->'$'+index++))
     callback(null,sql,bindvars)
 
-
 class PostgreSQLClient extends SQLClient
   constructor:(options...)->
     super(options...,new PostgreSQLConnectionFactory())
@@ -35,3 +34,30 @@ class PostgreSQLClientPool extends SQLClientPool
 exports.PostgreSQLConnectionFactory = PostgreSQLConnectionFactory
 exports.PostgreSQLClient = PostgreSQLClient
 exports.PostgreSQLClientPool = PostgreSQLClientPool
+
+class PostgreSQLConnectionFactory2 extends PostgreSQLConnectionFactory
+  open_connection:(connect_string,callback)=>
+    pg.connect connect_string, (err,client,done_fn)=>
+      connection = client
+      connection._sqlclient_done = done_fn
+      callback(err,connection)
+      
+  close_connection:(connection,callback)=>
+    if connection?._sqlclient_done?
+      connection._sqlclient_done()
+      callback?(null)
+    else
+      super.close_connection(connection,callback)
+
+class PostgreSQLClient2 extends SQLClient
+  constructor:(options...)->
+    super(options...,new PostgreSQLConnectionFactory2())
+
+
+class PostgreSQLClientPool2 extends SQLClientPool
+  constructor:(options...)->
+    super(options...,new PostgreSQLConnectionFactory2())
+
+exports.PostgreSQLConnectionFactory2 = PostgreSQLConnectionFactory2
+exports.PostgreSQLClient2 = PostgreSQLClient2
+exports.PostgreSQLClientPool2 = PostgreSQLClientPool2
