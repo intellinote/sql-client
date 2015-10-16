@@ -1,6 +1,6 @@
 {
   "name"        : "sql-client",
-  "version"     : "0.6.0",
+  "version"     : "0.7.0",
   "description" : "A dirt-simple SQL client abstraction (currently) supporting PostgreSQL, MySQL and SQLite.",
   "keywords"    : [ "SQL","client","connection", "pool","database","Postgres","PostgeSQL","mySQL","SQLite","SQLite3" ],
   "repository"  : { "type": "git", "url": "https://github.com/intellinote/sql-client.git" },
@@ -8,23 +8,23 @@
   "license"     : "MIT",
   "author"      : "Intellinote <https://www.intellinote.net/>",
   "dependencies": {
-    "inote-util": "^0.6",
-    "optimist":   "^0.6",
-    "argf":       "^0.0"
+    "inote-util": "0.8.x",
+    "optimist":   "0.6.x",
+    "argf":       "0.0.x"
   },
   "devDependencies": {
-    "coffee-coverage"       : "^0.5",
-    "coffee-script"         : "^1.9",
-    "docco"                 : "^0.7",
-    "highlight.js"          : "^8.6",
-    "marked"                : "^0.3",
-    "marked-toc"            : "^0.3",
-    "mocha"                 : "^2.2",
-    "mysql"                 : "^2.7",
-    "pg"                    : "^4.4",
-    "pg-native"             : "^1.8",
-    "should"                : "^7.0",
-    "sqlite3"               : "^3.0"
+    "coffee-coverage"       : "0.6.x",
+    "coffee-script"         : "1.10.x",
+    "docco"                 : "0.7.x",
+    "highlight.js"          : "8.8.x",
+    "marked"                : "0.3.x",
+    "marked-toc"            : "0.3.x",
+    "mocha"                 : "2.3.x",
+    "mysql"                 : "2.9.x",
+    "pg"                    : "4.4.x",
+    "pg-native"             : "1.9.x",
+    "should"                : "7.1.x",
+    "sqlite3"               : "3.1.x"
   },
   "main": "lib/index.js",
   "scripts": {
