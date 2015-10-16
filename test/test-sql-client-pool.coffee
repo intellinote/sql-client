@@ -550,3 +550,21 @@ describe 'SQLClientPool',->
                       factory.mock_connection.open_count.should.equal 2
                       factory.mock_connection.close_count.should.equal 2
                       done()
+
+  it 'will retry invalid connections when configured to do so', (done)->
+    options = { max_retries:10 }
+    factory = new MockConnectionFactory()
+    pool = new SQLClientPool "my sql configuration", factory
+    pool.connections_created= 0
+    pool.create = (callback)=>
+      pool.connections_created += 1
+      callback(null,null)
+    pool.open options, (err)=>
+      should.not.exist err
+      pool.connections_created.should.equal 0
+      pool.borrow (err,client)->
+        should.exist err
+        pool.connections_created.should.equal 11
+        pool.close (err)=>
+          should.not.exist err
+          done()

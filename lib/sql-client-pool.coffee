@@ -20,6 +20,7 @@ class SQLClientPool
  }
 
   DEFAULT_WAIT_INTERVAL: 50
+  DEFAULT_RETRY_INTERVAL: 50
 
   create:(callback)=>
     client = new SQLClient(@sql_options...,@factory)
@@ -96,7 +97,7 @@ class SQLClientPool
           @return client, ()=>
             callback(response...)
           
-  borrow:(callback,blocked_since)=>
+  borrow:(callback,blocked_since=null,retry_count=0)=>
     if typeof callback isnt 'function'
       throw new Error(@MESSAGES.INVALID_ARGUMENT)
     else
@@ -110,7 +111,7 @@ class SQLClientPool
             callback new Error(@MESSAGES.MAX_WAIT)
           else
             blocked_since ?= Date.now()
-            setTimeout (()=>@borrow(callback,blocked_since)), @pool_options.wait_interval
+            setTimeout (()=>@borrow(callback,blocked_since,retry_count)), @pool_options.wait_interval
         else if @pool.length > 0
           client = @pool.shift()
           @_activate_and_validate_or_destroy client, (err,valid,client)=>
@@ -132,7 +133,10 @@ class SQLClientPool
                 if err?
                   callback(err)
                 else if not valid
-                  callback new Error(@MESSAGES.INVALID)
+                  if @pool_options.max_retries? and @pool_options.max_retries > retry_count
+                    setTimeout (()=>@borrow(callback,blocked_since,retry_count+1)), (@pool_options.retry_interval ? 0)
+                  else
+                    callback new Error(@MESSAGES.INVALID)
                 else
                   client.pooled_at = null
                   client.borrowed_at = Date.now()
@@ -163,23 +167,32 @@ class SQLClientPool
               callback?()
 
   # CONFIGUATION OPTIONS:
-  #  - 'min_idle' - minimum number of idle connections in an "empty" pool
-  #  - 'max_idle' - maximum number of idle connections in a "full" pool
-  #  - 'max_active' - maximum number of connections active at one time
-  #  - 'when_exhausted' - what to do when max_active is reached ("GROW","BLOCK","FAIL"),
-  #  - 'max_wait' - when `when_exhausted` is `BLOCK` max time (in millis) to wait before failure, use < 0 for no maximum
-  #  - 'wait_interval'  - when `when_exhausted` is `BLOCK`, amount of time to wait before rechecking if connections are available
-  #  - 'max_age' - when a positive integer, connections that have been idle for `max_age` milliseconds will be considered invalid and eligable for eviction
-  #  - 'eviction_run_interval' - when a positive integer, the number of milliseconds between eviction runs; during an eviction run idle connections will be tested for validity and if invalid, evicted from the pool
-  #   - 'eviction_run_length' - when a positive integer, the maxiumum number of connections to examine per eviction run (when not set, all idle connections will be evamined during each eviction run)
-  #   - 'unref_eviction_runner' - unless `false`, `unref` (https://nodejs.org/api/timers.html#timers_unref) will be called on the eviction run interval timer
+  #  - `min_idle` - minimum number of idle connections in an "empty" pool
+  #  - `max_idle` - maximum number of idle connections in a "full" pool
+  #  - `max_active` - maximum number of connections active at one time
+  #  - `when_exhausted` - what to do when max_active is reached (`grow`,`block`,`fail`),
+  #  - `max_wait` - when `when_exhausted` is `block` max time (in millis) to wait before failure, use < 0 for no maximum
+  #  - `wait_interval`  - when `when_exhausted` is `BLOCK`, amount of time (in millis) to wait before rechecking if connections are available
+  #  - `max_retries` - number of times to attempt to create another new connection when a newly created connection is invalid; when `null` no retry attempts will be made; when < 0 an infinite number of retries will be attempted
+  #  - `retry_interval`  - when `max_retries` is > 0, amount of time (in millis) to wait before retrying
+  #  - `max_age` - when a positive integer, connections that have been idle for `max_age` milliseconds will be considered invalid and eligable for eviction
+  #  - `eviction_run_interval` - when a positive integer, the number of milliseconds between eviction runs; during an eviction run idle connections will be tested for validity and if invalid, evicted from the pool
+  #   - `eviction_run_length` - when a positive integer, the maxiumum number of connections to examine per eviction run (when not set, all idle connections will be evamined during each eviction run)
+  #   - `unref_eviction_runner` - unless `false`, `unref` (https://nodejs.org/api/timers.html#timers_unref) will be called on the eviction run interval timer
   _config:(opts,callback)=>
     opts ?= {}
     new_opts = @_clone(@pool_options)
     keys = Object.keys(opts)
-    for prop in [ 'min_idle','max_idle','max_active', 'when_exhausted', 'max_wait', 'wait_interval', 'max_age', 'eviction_run_interval', 'eviction_run_length', 'unref_eviction_runner']
+    for prop in [ 'min_idle','max_idle','max_active', 'when_exhausted', 'max_wait', 'wait_interval', 'max_age', 'eviction_run_interval', 'eviction_run_length', 'unref_eviction_runner', 'max_retries', 'retry_interval']
       if prop in keys
         new_opts[prop] = opts[prop]
+    if new_opts.max_retries? and (typeof new_opts.max_retries isnt 'number' or new_opts.max_retries <= 0)
+      new_opts.max_retries = null
+    if new_opts.max_retries?
+      if new_opts.retry_interval? and (typeof new_opts.retry_interval isnt 'number' or new_opts.retry_interval <= 0)
+        new_opts.retry_interval = 0
+      else unless new_opts.retry_interval?
+        new_opts.retry_interval = @DEFAULT_RETRY_INTERVAL
     if typeof new_opts.max_idle is 'number' and new_opts.max_idle < 0
       new_opts.max_idle = Number.MAX_VALUE
     else if typeof new_opts.max_idle isnt 'number'
