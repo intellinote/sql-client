@@ -39,7 +39,8 @@ class PostgreSQLConnectionFactory2 extends PostgreSQLConnectionFactory
   open_connection:(connect_string,callback)=>
     pg.connect connect_string, (err,client,done_fn)=>
       connection = client
-      connection._sqlclient_done = done_fn
+      if connection?
+        connection._sqlclient_done = done_fn
       callback(err,connection)
       
   close_connection:(connection,callback)=>
