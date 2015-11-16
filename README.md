@@ -57,7 +57,7 @@ client.connect( function(err) {
   client.execute( "SELECT ? + 3 AS x", [ 4 ], function (err,rows,fields) {
     console.log("The answer is",rows[0].x);
     client.disconnect();
-  }):
+  });
 });
 ```
 
@@ -73,7 +73,7 @@ var client = new mysql.MySQLClient(params);
 client.execute( "SELECT ? + 3 AS x", [ 4 ], function (err,rows,fields) {
   console.log("The answer is",rows[0].x);
   client.disconnect();
-}):
+});
 ```
 
 ### SQLClientPool
@@ -92,7 +92,7 @@ var mysql = require('sql-client');
 var params = { host: 'localhost', user: 'scott', password: 'tiger' };
 
 function setupPool(callback) {
-  var pool_config = { max_idle: 3; }
+  params.max_idle = 3;
   var pool = new mysql.MySQLClientPool(params);
   pool.open( function(err) { callback(pool); } );
 }
@@ -106,7 +106,7 @@ function runQuery(callback) {
     client.execute( "SELECT ? + 3 AS x", [ 4 ], function (err,rows,fields) {
       console.log("The answer is",rows[0].x);
       callback();
-    }):
+    });
   });
 }
 
