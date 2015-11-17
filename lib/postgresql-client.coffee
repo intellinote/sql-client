@@ -7,8 +7,11 @@ SQLClient         = require( path.join(LIB_DIR,'sql-client') ).SQLClient
 SQLClientPool     = require( path.join(LIB_DIR,'sql-client-pool') ).SQLClientPool
 ConnectionFactory = require( path.join(LIB_DIR,'connection-factory') ).ConnectionFactory
 pg                = require('pg')
-if pg?.native?
-  pg = pg.native
+try
+  if pg?.native?
+    pg = pg.native
+catch error
+  console.log error
 
 class PostgreSQLConnectionFactory extends ConnectionFactory
   open_connection:(connect_string,callback)=>
