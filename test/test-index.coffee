@@ -13,13 +13,13 @@ describe "index",->
     'ConnectionFactory'
     'SQLClient'
     'SQLClientPool'
-    'PostgreSQLClient'
-    'MySQLClient'
-    'SQLite3Client'
     'SQLRunner'
-    ['bin','PostgreSQLRunner']
-    ['bin','MySQLRunner']
-    ['bin','SQLite3Runner']
+    # 'PostgreSQLClient'
+    # 'MySQLClient'
+    # 'SQLite3Client'
+    # ['bin','PostgreSQLRunner']
+    # ['bin','MySQLRunner']
+    # ['bin','SQLite3Runner']
   ]
 
   for expect in expected
