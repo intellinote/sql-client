@@ -168,11 +168,13 @@ clean-markdown:
 ################################################################################
 # NPM TARGETS
 
-# TODO - confirm that all JSON files in config directory are valid when packaging
+db-modules:
+	$(NPM_EXE) install "mysql@2.10.x"
+	$(NPM_EXE) install "pg@4.5.x"
+	$(NPM_EXE) install "pg-native@1.10.x"
+	$(NPM_EXE) install "sqlite3@3.1.x"
 
-# cp -r docs $(MODULE_DIR)
-# cp -r test $(MODULE_DIR)
-module: js bin test docs coverage
+module: db-modules js bin test
 	mkdir -p $(MODULE_DIR)
 	cp $(PACKAGE_JSON) $(MODULE_DIR)
 	cp -r bin $(MODULE_DIR)
@@ -184,7 +186,7 @@ module: js bin test docs coverage
 	find module -type f -name "*.md-toc" -exec rm -f {} \;
 	find module -type f -name "*.x" -exec rm -f {} \;
 
-test-module-install: clean-test-module-install js test docs coverage module
+test-module-install: clean-test-module-install module
 	mkdir ../testing-module-install; cd ../testing-module-install; npm install "$(CURDIR)/module"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf ../testing-module-install && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
 
 $(NODE_MODULES): $(PACKAGE_JSON)
