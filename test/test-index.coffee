@@ -14,6 +14,7 @@ describe "index",->
     'SQLClient'
     'SQLClientPool'
     'SQLRunner'
+    'Transaction'
     # 'PostgreSQLClient'
     # 'MySQLClient'
     # 'SQLite3Client'

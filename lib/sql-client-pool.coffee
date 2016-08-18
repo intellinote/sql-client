@@ -17,10 +17,13 @@ class SQLClientPool
     INVALID_ARGUMENT:   "Invalid argument."
     NULL_RETURNED:      "A null object was returned."
     CLOSED_WITH_ACTIVE: "The pool was closed, but some clients remain active (were never returned)."
- }
+  }
 
   DEFAULT_WAIT_INTERVAL: 50
   DEFAULT_RETRY_INTERVAL: 50
+
+  create_transaction:()=>
+    new Transaction(this)
 
   create:(callback)=>
     client = new SQLClient(@sql_options...,@factory)
@@ -87,6 +90,9 @@ class SQLClientPool
 
   # borrow, execute, return, callback
   execute:(sql,bindvars,callback)=>
+    if typeof bindvars is 'function' and not callback?
+      callback = bindvars
+      bindvars = []
     @borrow (err,client)=>
       if err?
         callback(err)
@@ -96,7 +102,7 @@ class SQLClientPool
         client.execute sql, bindvars, (response...)=>
           @return client, ()=>
             callback(response...)
-          
+
   borrow:(callback,blocked_since=null,retry_count=0)=>
     if typeof callback isnt 'function'
       throw new Error(@MESSAGES.INVALID_ARGUMENT)
@@ -225,7 +231,7 @@ class SQLClientPool
 
   _evict:(callback)=>
     @_eviction_run(0,callback)
-    
+
   _eviction_run:(num_to_check,callback)=>
     if typeof num_to_check is 'function' and not callback?
       callback = num_to_check
@@ -313,4 +319,59 @@ class SQLClientPool
         cloned[n] = v
       return cloned
 
+class Transaction
+
+  constructor:(@_pool)->
+    undefined
+
+  begin:(callback)=>
+    @execute "BEGIN", [], (r...)=>
+      @_began = true
+      callback(r...)
+
+  _end:(command,callback)=>
+    maybe_return = (cb)=>
+      if @_pool? and @_client?
+        @_pool.return @_client, ()=>
+          @_pool = null
+          @_client = null
+          cb?()
+      else
+        cb?()
+    if @_began
+      @execute command, [], (err)=>
+        maybe_return ()=>
+          callback(err)
+    else
+      maybe_return ()=>
+        callback()
+
+  rollback:(callback)=>
+    @_end "ROLLBACK", callback
+
+  commit:(callback)=>
+    @_end "COMMIT", callback
+
+  _borrow:(callback)=>
+    if @_client?
+      callback(null,@_client)
+    else
+      unless @_pool?
+        callback(new Error("This transaction has already been closed."))
+      else
+        @_pool.borrow (err,client)=>
+          if err?
+            callback(err)
+          else
+            @_client = client
+            callback(null,client)
+
+  execute:(sql,params,callback)=>
+    @_borrow (err,client)=>
+      if err?
+        callback(err)
+      else
+        client.execute sql, params, callback
+
 exports.SQLClientPool = SQLClientPool
+exports.Transaction   = Transaction

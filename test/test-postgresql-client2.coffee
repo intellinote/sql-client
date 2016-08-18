@@ -68,6 +68,92 @@ if should_continue
       database_available (available)->
         if available
 
+
+          describe 'Transactions',->
+
+            it 'can execute within transactions', (done)->
+              pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
+              pool.open (err)->
+                if err?
+                  report_no_database(err)
+                should.not.exist err
+                pool.execute "DROP TABLE IF EXISTS bar CASCADE", (err,results)->
+                  should.not.exist err
+                  pool.execute "CREATE TABLE bar ( foo VARCHAR(32), bar INTEGER )", (err,results)->
+                    should.not.exist err
+                    pool.execute "INSERT INTO bar VALUES ( 'x', 1 )", (err,results)->
+                      should.not.exist err
+                      pool.close (err)->
+                        should.not.exist err
+                        pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
+                        pool.open (err)->
+                          should.not.exist err
+                          pool.execute "SELECT COUNT(*)::INTEGER AS c FROM bar", (err,results)->
+                            should.not.exist err
+                            results.rows[0].c.should.equal 1
+                            transaction = pool.create_transaction()
+                            transaction.begin (err)->
+                              should.not.exist err
+                              transaction.execute "INSERT INTO bar VALUES ( 'y', 2 )", (err,results)->
+                                should.not.exist err
+                                transaction.execute "SELECT COUNT(*)::INTEGER AS c FROM bar", (err,results)->
+                                  should.not.exist err
+                                  results.rows[0].c.should.equal 2
+                                  pool.execute "SELECT COUNT(*)::INTEGER AS c FROM bar", (err,results)->
+                                    should.not.exist err
+                                    results.rows[0].c.should.equal 1
+                                    transaction.commit (err)->
+                                      should.not.exist err
+                                      pool.execute "SELECT COUNT(*)::INTEGER AS c FROM bar", (err,results)->
+                                        should.not.exist err
+                                        results.rows[0].c.should.equal 2
+                                        pool.execute "DROP TABLE IF EXISTS bar CASCADE", (err,results)->
+                                          should.not.exist err
+                                          pool.close (err)->
+                                            should.not.exist err
+                                            done()
+            it 'can rollback transactions', (done)->
+              pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
+              pool.open (err)->
+                if err?
+                  report_no_database(err)
+                should.not.exist err
+                pool.execute "DROP TABLE IF EXISTS bar CASCADE", (err,results)->
+                  should.not.exist err
+                  pool.execute "CREATE TABLE bar ( foo VARCHAR(32), bar INTEGER )", (err,results)->
+                    should.not.exist err
+                    pool.execute "INSERT INTO bar VALUES ( 'x', 1 )", (err,results)->
+                      should.not.exist err
+                      pool.close (err)->
+                        should.not.exist err
+                        pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
+                        pool.open (err)->
+                          should.not.exist err
+                          pool.execute "SELECT COUNT(*)::INTEGER AS c FROM bar", (err,results)->
+                            should.not.exist err
+                            results.rows[0].c.should.equal 1
+                            transaction = pool.create_transaction()
+                            transaction.begin (err)->
+                              should.not.exist err
+                              transaction.execute "INSERT INTO bar VALUES ( 'y', 2 )", (err,results)->
+                                should.not.exist err
+                                transaction.execute "SELECT COUNT(*)::INTEGER AS c FROM bar", (err,results)->
+                                  should.not.exist err
+                                  results.rows[0].c.should.equal 2
+                                  pool.execute "SELECT COUNT(*)::INTEGER AS c FROM bar", (err,results)->
+                                    should.not.exist err
+                                    results.rows[0].c.should.equal 1
+                                    transaction.rollback (err)->
+                                      should.not.exist err
+                                      pool.execute "SELECT COUNT(*)::INTEGER AS c FROM bar", (err,results)->
+                                        should.not.exist err
+                                        results.rows[0].c.should.equal 1
+                                        pool.execute "DROP TABLE IF EXISTS bar CASCADE", (err,results)->
+                                          should.not.exist err
+                                          pool.close (err)->
+                                            should.not.exist err
+                                            done()
+
           describe 'PostgreSQLClient2',->
 
             it 'can connect to the database', (done)->
