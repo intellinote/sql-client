@@ -8,19 +8,19 @@
   "license"     : "MIT",
   "author"      : "Intellinote <https://www.intellinote.net/>",
   "dependencies": {
-    "inote-util": "1.1.x",
-    "optimist":   "0.6.x",
-    "argf":       "0.0.x"
+    "inote-util": "^1.7",
+    "optimist":   "^0.6",
+    "argf":       "^0.0"
   },
   "devDependencies": {
-    "coffee-coverage"       : "1.0.x",
-    "coffee-script"         : "1.10.x",
-    "docco"                 : "0.7.x",
-    "highlight.js"          : "9.3.x",
-    "marked"                : "0.3.x",
-    "marked-toc"            : "0.3.x",
-    "mocha"                 : "2.4.x",
-    "should"                : "8.3.x"
+    "coffee-coverage"       : "^1.0",
+    "coffee-script"         : "^1.10",
+    "docco"                 : "^0.7",
+    "highlight.js"          : "^9.6",
+    "marked"                : "^0.3",
+    "marked-toc"            : "^0.3",
+    "mocha"                 : "^3.0",
+    "should"                : "^11.1"
   },
   "databaseSpecificDependencies": {
     "mysql"                 : "2.10.x",
