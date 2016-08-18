@@ -9,6 +9,27 @@ additional database platforms isn't difficult to implement.
 
 <!-- toc -->
 
+- [SQL-Client [![Build Status](https://travis-ci.org/intellinote/sql-client.svg?branch=master)](https://travis-ci.org/intellinote/sql-client) [![Dependencies](https://david-dm.org/intellinote/sql-client.svg)](https://npmjs.org/package/sql-client) [![NPM version](https://badge.fury.io/js/sql-client.svg)](http://badge.fury.io/js/sql-client)](#sql-client-build-statushttpstravis-ciorgintellinotesql-clientsvgbranchmasterhttpstravis-ciorgintellinotesql-client-dependencieshttpsdavid-dmorgintellinotesql-clientsvghttpsnpmjsorgpackagesql-client-npm-versionhttpsbadgefuryiojssql-clientsvghttpbadgefuryiojssql-client)
+	- [Installing](#installing)
+	- [Using](#using)
+		- [SQLClient](#sqlclient)
+		- [SQLClientPool](#sqlclientpool)
+		- [Transactions](#transactions)
+	- [Contents](#contents)
+		- [Generic Types](#generic-types)
+		- [Database-Specific Types](#database-specific-types)
+		- [Executables](#executables)
+	- [Hacking](#hacking)
+		- [Obtaining Make](#obtaining-make)
+		- [Basics](#basics)
+		- [Using the Makefile](#using-the-makefile)
+	- [Licensing](#licensing)
+	- [How to contribute](#how-to-contribute)
+	- [About Intellinote](#about-intellinote)
+		- [Work with Us](#work-with-us)
+
+<!-- tocstop -->
+
 ## Installing
 
 The source code and documentation for *sql-client* is available on
@@ -85,6 +106,8 @@ When using a pool, we obtain a `SQLClient` instance by calling
 `SQLClientPool.borrow` and must take care to return it by calling
 `SQLClientPool.return` when we are done with it.
 
+For your convenience, you can encapsulate the `borrow` and `return` sequence with a single call, `execute`.
+
 For example:
 
 ```javascript
@@ -102,19 +125,59 @@ function teardownPool(pool) {
 }
 
 function runQuery(callback) {
-  pool.borrow( function(err,client) {
-    client.execute( "SELECT ? + 3 AS x", [ 4 ], function (err,rows,fields) {
-      console.log("The answer is",rows[0].x);
-      callback();
-    });
+  pool.execute( "SELECT ? + 3 AS x", [ 4 ], function (err,rows,fields) {
+    console.log("The answer is",rows[0].x);
+    callback();
   });
 }
 
 setupPool( function(pool) {
   runQuery( function() {
     teardownPool( pool );
-  };
+  });
+});
+```
+
+### Transactions
+
+The `SQLClientPool` provides convenience methods that make it easy to work with transactions.
+
+To create a transaction, call the `SQLClientPool` method `create_transaction`.  The returned object will look very much like the underlying pool, but it also includes `begin`, `commit` and `rollback` methods.
+
+
+For example:
+
+```javascript
+var mysql = require('sql-client');
+var params = { host: 'localhost', user: 'scott', password: 'tiger' };
+
+function setupPool(callback) {
+  params.max_idle = 3;
+  var pool = new mysql.MySQLClientPool(params);
+  pool.open( function(err) { callback(pool); } );
 }
+
+function teardownPool(pool) {
+  pool.close();
+}
+
+function runQuery(callback) {
+  transaction = pool.create_transaction();
+  transaction.execute( "SELECT ? + 3 AS x", [ 4 ], function (err,rows,fields) {
+    if (err) {
+      transaction.rollback(function() { callback(err); });
+    } else {
+      console.log("The answer is",rows[0].x);
+      transaction.commit(callback);
+    }
+  });
+}
+
+setupPool( function(pool) {
+  runQuery( function() {
+    teardownPool( pool );
+  });
+});
 ```
 
 ## Contents
@@ -150,7 +213,7 @@ platforms.  Specifically:
  * **PostgreSQLClient** / **PostgreSQLClientPool** -
    a `ConnectionFactory` implementation that wraps
    [*node-postgres*](https://github.com/brianc/node-postgres).
-   
+
  * **PostgreSQLClient2** / **PostgreSQLClientPool2** -
    a `ConnectionFactory` implementation that wraps
    [*node-postgres*](https://github.com/brianc/node-postgres)
