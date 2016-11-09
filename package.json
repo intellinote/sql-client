@@ -23,10 +23,11 @@
     "should"                : "^11.1"
   },
   "databaseSpecificDependencies": {
-    "mysql"                 : "2.10.x",
-    "sqlite3"               : "3.1.x",
-    "pg"                    : "4.5.x",
-    "pg-native"             : "1.10.x"
+    "// NOTE"               : "Enable one or more of these to test the corresponding database client.",
+    "mysql"                 : "^2.12",
+    "sqlite3"               : "^3.1",
+    "pg"                    : "^6.1",
+    "pg-native"             : "^1.10"
   },
   "main": "lib/index.js",
   "scripts": {
