@@ -112,6 +112,8 @@ if should_continue
                                           pool.close (err)->
                                             should.not.exist err
                                             done()
+              return null
+
             it 'can rollback transactions', (done)->
               pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
               pool.open (err)->
@@ -153,6 +155,7 @@ if should_continue
                                           pool.close (err)->
                                             should.not.exist err
                                             done()
+              return null
 
           describe 'PostgreSQLClient2',->
 
@@ -165,6 +168,7 @@ if should_continue
                 client.disconnect (err)->
                   should.not.exist err
                   done()
+              return null
 
             it 'can execute a query (straight sql)', (done)->
               client = new pg.PostgreSQLClient2(CONNECT_STRING)
@@ -180,6 +184,7 @@ if should_continue
                   client.disconnect (err)->
                     should.not.exist err
                     done()
+              return null
 
             it 'can execute a query (postgresql-style ($1) bind-variables)', (done)->
               client = new pg.PostgreSQLClient2(CONNECT_STRING)
@@ -194,6 +199,7 @@ if should_continue
                   client.disconnect (err)->
                     should.not.exist err
                     done()
+              return null
 
             it 'can execute a query (?-style bind-variables)', (done)->
               client = new pg.PostgreSQLClient2(CONNECT_STRING)
@@ -208,6 +214,7 @@ if should_continue
                   client.disconnect (err)->
                     should.not.exist err
                     done()
+              return null
 
 
           describe 'PostgreSQLClientPool2',->
@@ -231,6 +238,7 @@ if should_continue
                       pool.close (err)->
                         should.not.exist err
                         done()
+              return null
 
             it 'supports execute method to wrapping borrow/return logic (default config)', (done)->
               pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
@@ -246,6 +254,7 @@ if should_continue
                   pool.close (err)->
                     should.not.exist err
                     done()
+              return null
 
             it 'supports borrow, execute, return X 5 pattern (default config)', (done)->
               pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
@@ -269,6 +278,7 @@ if should_continue
                   pool.close (err)->
                     should.not.exist err
                     done()
+              return null
 
             it 'supports borrow, execute, borrow, return, execute, return X 5 pattern (default config)', (done)->
               pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
@@ -304,6 +314,7 @@ if should_continue
                   pool.close (err)->
                     should.not.exist err
                     done()
+              return null
 
             it 'supports borrow, execute, borrow, execute, return, return X 5 pattern (default config)', (done)->
               pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
@@ -339,6 +350,7 @@ if should_continue
                   pool.close (err)->
                     should.not.exist err
                     done()
+              return null
 
             it 'supports borrow, execute, return pattern (max_idle=5,min_idle=3)', (done)->
               options = { min_idle:3, max_idle:5 }
@@ -360,6 +372,7 @@ if should_continue
                       pool.close (err)->
                         should.not.exist err
                         done()
+              return null
 
             it 'supports borrow, execute, borrow, execute, return, return pattern (default config)', (done)->
               pool = new pg.PostgreSQLClientPool2(CONNECT_STRING)
@@ -392,6 +405,7 @@ if should_continue
                             pool.close (err)->
                               should.not.exist err
                               done()
+              return null
 
             it 'supports borrow, execute, return, borrow,  execute, return pattern (max_idle=1,min_idle=0)', (done)->
               options = { max_idle:1,min_idle:0 }
@@ -425,4 +439,7 @@ if should_continue
                             pool.close (err)->
                               should.not.exist err
                               done()
+              return null
+
         done()
+      return null
