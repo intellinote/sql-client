@@ -7,8 +7,9 @@ SQLClient         = require( path.join(LIB_DIR,'sql-client') ).SQLClient
 SQLClientPool     = require( path.join(LIB_DIR,'sql-client-pool') ).SQLClientPool
 ConnectionFactory = require( path.join(LIB_DIR,'connection-factory') ).ConnectionFactory
 pg                = require('pg')
+
 try
-  if pg?.native?
+  unless pg.__lookupGetter__("native")?
     pg = pg.native
 catch error
   console.log error
@@ -45,7 +46,7 @@ class PostgreSQLConnectionFactory2 extends PostgreSQLConnectionFactory
       if connection?
         connection._sqlclient_done = done_fn
       callback(err,connection)
-      
+
   close_connection:(connection,callback)=>
     if connection?._sqlclient_done?
       connection._sqlclient_done()
