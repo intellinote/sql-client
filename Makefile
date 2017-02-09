@@ -169,10 +169,9 @@ clean-markdown:
 # NPM TARGETS
 
 db-modules:
-	$(NPM_EXE) install "mysql@2.10.x"
-	$(NPM_EXE) install "pg@4.5.x"
-	$(NPM_EXE) install "pg-native@1.10.x"
-	$(NPM_EXE) install "sqlite3@3.1.x"
+	$(NPM_EXE) install "mysql@^2.12"
+	$(NPM_EXE) install "pg@^6.1"
+	$(NPM_EXE) install "sqlite3@^3.1"
 
 module: db-modules js bin test
 	mkdir -p $(MODULE_DIR)
