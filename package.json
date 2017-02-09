@@ -19,7 +19,7 @@
     "highlight.js"          : "^9.6",
     "marked"                : "^0.3",
     "marked-toc"            : "^0.3",
-    "mocha"                 : "^3.0",
+    "mocha"                 : "^2.2",
     "should"                : "^11.1"
   },
   "databaseSpecificDependencies": {
