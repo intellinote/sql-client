@@ -15,6 +15,9 @@ catch error
   console.log error
 
 class PostgreSQLConnectionFactory extends ConnectionFactory
+  constructor:()->
+    super()
+
   open_connection:(connect_string,callback)=>
     connection = new pg.Client(connect_string)
     connection.connect (err)=>
@@ -40,6 +43,9 @@ exports.PostgreSQLClient = PostgreSQLClient
 exports.PostgreSQLClientPool = PostgreSQLClientPool
 
 class PostgreSQLConnectionFactory2 extends PostgreSQLConnectionFactory
+  constructor:()->
+    super()
+
   open_connection:(connect_string,callback)=>
     pg.connect connect_string, (err,client,done_fn)=>
       connection = client
