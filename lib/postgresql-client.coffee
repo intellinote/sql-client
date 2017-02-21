@@ -14,6 +14,7 @@ try
 catch error
   console.log error
 
+# PostgreSQLConnectionFactory does not use any of node-pg's built-in pooling.
 class PostgreSQLConnectionFactory extends ConnectionFactory
   constructor:()->
     super()
@@ -42,6 +43,7 @@ exports.PostgreSQLConnectionFactory = PostgreSQLConnectionFactory
 exports.PostgreSQLClient = PostgreSQLClient
 exports.PostgreSQLClientPool = PostgreSQLClientPool
 
+# PostgreSQLConnectionFactory2 DOES usenode-pg's built-in pooling.
 class PostgreSQLConnectionFactory2 extends PostgreSQLConnectionFactory
   constructor:()->
     super()
@@ -68,6 +70,19 @@ class PostgreSQLClient2 extends SQLClient
 class PostgreSQLClientPool2 extends SQLClientPool
   constructor:(options...)->
     super(options...,new PostgreSQLConnectionFactory2())
+
+  destroy:(client,callback)=>
+    if client?
+      client.disconnect ()=>
+        if conn?.end?
+          conn.end ()=>
+            console.log "ENDED!"
+            callback()
+        else
+          console.log "not ended"
+          callback?()
+    else
+      callback?()
 
 exports.PostgreSQLConnectionFactory2 = PostgreSQLConnectionFactory2
 exports.PostgreSQLClient2 = PostgreSQLClient2
