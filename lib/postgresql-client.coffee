@@ -73,14 +73,7 @@ class PostgreSQLClientPool2 extends SQLClientPool
 
   destroy:(client,callback)=>
     if client?
-      client.disconnect ()=>
-        if conn?.end?
-          conn.end ()=>
-            console.log "ENDED!"
-            callback()
-        else
-          console.log "not ended"
-          callback?()
+      client.disconnect callback
     else
       callback?()
 
