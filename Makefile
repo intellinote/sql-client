@@ -229,7 +229,27 @@ test: $(MOCHA_TESTS) $(NODE_MODULES)
 test-watch: $(MOCHA_TESTS) $(NODE_MODULES)
 	$(MOCHA_EXE) --watch $(MOCHA_TEST_ARGS) ${MOCHA_EXTRA_ARGS} $(MOCHA_TESTS)
 
-coverage: $(COFFEE_SRCS) $(COFFEE_TEST_SRCS) $(MOCHA_TESTS) $(NODE_MODULES)
+define COVERAGE_SUMMARY
+stew = new (require("stew-select")).Stew()
+html = require("fs").readFileSync("$(COVERAGE_REPORT)").toString()
+stew.select_first html, "#stats", (err,node)->
+  if err?
+    console.err "Encountered error attempting to parse summary from coverage report", err
+  inner = stew.dom_util.inner_html(node)
+  stew.select inner, "div", (err,nodes)->
+    if err?
+      console.err "Encountered error attempting to parse summary from coverage report", err
+    nodes = nodes.map (x)->stew.dom_util.to_text(x)
+    console.log ""
+    console.log "Coverage:",nodes[0]
+    console.log "    SLOC:",nodes[1]
+    console.log "    Hits:",nodes[2]
+    console.log "  Misses:",nodes[3]
+    console.log ""
+endef
+export COVERAGE_SUMMARY
+
+coverage: $(COFFEE_SRCS) $(COFFEE_TEST_SRCS) $(MOCHA_TESTS) $(NODE_MODULES) db-modules
 	rm -rf $(COVERAGE_TMP_DIR)
 	rm -rf $(LIB_COV)
 	mkdir -p $(COVERAGE_TMP_DIR)
@@ -239,6 +259,9 @@ coverage: $(COFFEE_SRCS) $(COFFEE_TEST_SRCS) $(MOCHA_TESTS) $(NODE_MODULES)
 	$(MOCHA_EXE) $(MOCHA_COV_ARGS) $(MOCHA_TESTS) > $(COVERAGE_REPORT)
 	rm -rf $(COVERAGE_TMP_DIR)
 	rm -rf $(LIB_COV)
+	@$(COFFEE_EXE) -e "$$COVERAGE_SUMMARY"
+	@echo "Coverage report generated at $(COVERAGE_REPORT).\n"
+	@echo "USE: open $(COVERAGE_REPORT)"
 
 ################################################################################
 # MARKDOWN & OTHER DOC TARGETS

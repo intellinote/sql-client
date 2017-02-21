@@ -17,10 +17,12 @@
     "coffee-script"         : "^1.10",
     "docco"                 : "^0.7",
     "highlight.js"          : "^9.6",
-    "marked"                : "^0.3",
+    "htmlparser"            : "^1",
     "marked-toc"            : "^0.3",
+    "marked"                : "^0.3",
     "mocha"                 : "^2.2",
-    "should"                : "^11.1"
+    "should"                : "^11.1",
+    "stew-select"           : "^0"
   },
   "databaseSpecificDependencies": {
     "// NOTE"               : "Enable one or more of these to test the corresponding database client.",
