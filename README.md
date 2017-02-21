@@ -1,4 +1,4 @@
-# SQL-Client [![Build Status](https://travis-ci.org/intellinote/sql-client.svg?branch=master)](https://travis-ci.org/intellinote/sql-client) [![Dependencies](https://david-dm.org/intellinote/sql-client.svg)](https://npmjs.org/package/sql-client) [![NPM version](https://badge.fury.io/js/sql-client.svg)](http://badge.fury.io/js/sql-client)
+# SQL-Client
 
 **sql-client** is a [Node.js](http://nodejs.org/) library that defines
 a simple and consistent abstraction for interacting with a relational
@@ -9,24 +9,24 @@ additional database platforms isn't difficult to implement.
 
 <!-- toc -->
 
-- [SQL-Client [![Build Status](https://travis-ci.org/intellinote/sql-client.svg?branch=master)](https://travis-ci.org/intellinote/sql-client) [![Dependencies](https://david-dm.org/intellinote/sql-client.svg)](https://npmjs.org/package/sql-client) [![NPM version](https://badge.fury.io/js/sql-client.svg)](http://badge.fury.io/js/sql-client)](#sql-client-build-statushttpstravis-ciorgintellinotesql-clientsvgbranchmasterhttpstravis-ciorgintellinotesql-client-dependencieshttpsdavid-dmorgintellinotesql-clientsvghttpsnpmjsorgpackagesql-client-npm-versionhttpsbadgefuryiojssql-clientsvghttpbadgefuryiojssql-client)
-	- [Installing](#installing)
-	- [Using](#using)
-		- [SQLClient](#sqlclient)
-		- [SQLClientPool](#sqlclientpool)
-		- [Transactions](#transactions)
-	- [Contents](#contents)
-		- [Generic Types](#generic-types)
-		- [Database-Specific Types](#database-specific-types)
-		- [Executables](#executables)
-	- [Hacking](#hacking)
-		- [Obtaining Make](#obtaining-make)
-		- [Basics](#basics)
-		- [Using the Makefile](#using-the-makefile)
-	- [Licensing](#licensing)
-	- [How to contribute](#how-to-contribute)
-	- [About Intellinote](#about-intellinote)
-		- [Work with Us](#work-with-us)
+* [SQL-Client](#sql-client)
+	* [Installing](#installing)
+	* [Using](#using)
+		* [SQLClient](#sqlclient)
+		* [SQLClientPool](#sqlclientpool)
+		* [Transactions](#transactions)
+	* [Contents](#contents)
+		* [Generic Types](#generic-types)
+		* [Database-Specific Types](#database-specific-types)
+		* [Executables](#executables)
+	* [Hacking](#hacking)
+		* [Obtaining Make](#obtaining-make)
+		* [Basics](#basics)
+		* [Using the Makefile](#using-the-makefile)
+	* [Licensing](#licensing)
+	* [How to contribute](#how-to-contribute)
+	* [About Intellinote](#about-intellinote)
+		* [Work with Us](#work-with-us)
 
 <!-- tocstop -->
 
