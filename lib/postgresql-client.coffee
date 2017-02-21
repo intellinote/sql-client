@@ -7,13 +7,18 @@ SQLClient         = require( path.join(LIB_DIR,'sql-client') ).SQLClient
 SQLClientPool     = require( path.join(LIB_DIR,'sql-client-pool') ).SQLClientPool
 ConnectionFactory = require( path.join(LIB_DIR,'connection-factory') ).ConnectionFactory
 pg                = require('pg')
+
 try
-  if pg?.native?
+  unless pg.__lookupGetter__("native")?
     pg = pg.native
 catch error
   console.log error
 
+# PostgreSQLConnectionFactory does not use any of node-pg's built-in pooling.
 class PostgreSQLConnectionFactory extends ConnectionFactory
+  constructor:()->
+    super()
+
   open_connection:(connect_string,callback)=>
     connection = new pg.Client(connect_string)
     connection.connect (err)=>
@@ -38,14 +43,18 @@ exports.PostgreSQLConnectionFactory = PostgreSQLConnectionFactory
 exports.PostgreSQLClient = PostgreSQLClient
 exports.PostgreSQLClientPool = PostgreSQLClientPool
 
+# PostgreSQLConnectionFactory2 DOES usenode-pg's built-in pooling.
 class PostgreSQLConnectionFactory2 extends PostgreSQLConnectionFactory
+  constructor:()->
+    super()
+
   open_connection:(connect_string,callback)=>
     pg.connect connect_string, (err,client,done_fn)=>
       connection = client
       if connection?
         connection._sqlclient_done = done_fn
       callback(err,connection)
-      
+
   close_connection:(connection,callback)=>
     if connection?._sqlclient_done?
       connection._sqlclient_done()
@@ -61,6 +70,19 @@ class PostgreSQLClient2 extends SQLClient
 class PostgreSQLClientPool2 extends SQLClientPool
   constructor:(options...)->
     super(options...,new PostgreSQLConnectionFactory2())
+
+  destroy:(client,callback)=>
+    if client?
+      client.disconnect ()=>
+        if conn?.end?
+          conn.end ()=>
+            console.log "ENDED!"
+            callback()
+        else
+          console.log "not ended"
+          callback?()
+    else
+      callback?()
 
 exports.PostgreSQLConnectionFactory2 = PostgreSQLConnectionFactory2
 exports.PostgreSQLClient2 = PostgreSQLClient2
