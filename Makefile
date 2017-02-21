@@ -19,7 +19,6 @@ COFFEE_TEST_JS ?= ${COFFEE_TEST_SRCS:.coffee=.js}
 NPM_EXE ?= npm
 PACKAGE_JSON ?= package.json
 NODE_MODULES ?= node_modules
-MODULE_DIR ?= module
 NPM_ARGS ?= --silent
 
 # PACKAGING ####################################################################
@@ -27,6 +26,7 @@ PACKAGE_VERSION ?= $(shell $(NODE_EXE) -e "console.log(require('./$(PACKAGE_JSON
 PACKAGE_NAME ?= $(shell $(NODE_EXE) -e "console.log(require('./$(PACKAGE_JSON)').name)")
 TMP_PACKAGE_DIR ?= packaging-$(PACKAGE_NAME)-$(PACKAGE_VERSION)-tmp
 PACKAGE_DIR ?= $(PACKAGE_NAME)-$(PACKAGE_VERSION)
+TEST_MODULE_INSTALL_DIR ?= ../testing-module-install
 
 # MOCHA ########################################################################
 MOCHA_EXE ?= ./node_modules/.bin/mocha
@@ -48,14 +48,14 @@ MOCHA_COV_ARGS  ?= --require $(LIB_COV)/coffee-coverage-init.js --globals "_\$$j
 
 # MARKDOWN #####################################################################
 MARKDOWN_TOC ?= ./node_modules/.bin/toc
-MARKDOWN_SRCS ?= $(shell find . -type f -name '*.md' | grep -v node_modules | grep -v module)
+MARKDOWN_SRCS ?= $(shell find . -type f -name '*.md' | grep -v node_modules | grep -v module | grep -v sqlclient-v)
 MARKDOWN_TOCED ?= ${MARKDOWN_SRCS:.md=.md-toc}
 MARKDOWN_PROCESSOR ?= node -e "var h=require('highlight.js'),m=require('marked'),c='';process.stdin.on('data',function(b){c+=b.toString();});process.stdin.on('end',function(){m.setOptions({gfm:true,highlight:function(x,l){if(l){return h.highlight(l,x).value;}else{return x;}}});console.log(m(c))});process.stdin.resume();"
 MARKDOWN_HTML ?= ${MARKDOWN_TOCED:.md-toc=.html}
 MARKDOWN_PREFIX ?= "<html><head><style>`cat docs/styles/markdown.css`</style><body>"
 MARKDOWN_SUFFIX ?= "</body></html>"
 LITCOFFEE_PROCESSOR ?= node -e "var h=require('highlight.js'),m=require('marked'),c='';process.stdin.on('data',function(b){c+=b.toString();});process.stdin.on('end',function(){m.setOptions({gfm:true,highlight:function(x){return h.highlight('coffee',x).value;}});console.log(m(c))});process.stdin.resume();"
-LITCOFFEE_SRCS ?= $(shell find . -type f -name '*.litcoffee' | grep -v node_modules | grep -v module)
+LITCOFFEE_SRCS ?= $(shell find . -type f -name '*.litcoffee' | grep -v node_modules | grep -v module | grep -v sqlclient-v)
 LITCOFFEE_HTML ?= ${LITCOFFEE_SRCS:.litcoffee=.html}
 LITCOFFEE_TOCED ?= ${LITCOFFEE_SRCS:.litcoffee=.md-toc}
 
@@ -68,7 +68,7 @@ DOCCO_EXE ?= ./node_modules/.bin/docco
 # `.SUFFIXES` - reset suffixes in case any were previously defined
 .SUFFIXES:
 
-# `.PHONY` - make targets that aren't actually files
+# `.PHONY` - make targets that are not actually files
 .PHONY: all coffee clean clean-coverage clean-docco clean-docs clean-js clean-markdown clean-module clean-node-modules clean-test-module-install coverage docco docs fully-clean-node-modules js markdown module targets test test-module-install todo clean-bin bin js-bin coffee-bin
 
 # `all` - the default target
@@ -132,10 +132,10 @@ help:
 clean: clean-coverage clean-docco clean-docs clean-js clean-module clean-test-module-install clean-node-modules clean-bin
 
 clean-test-module-install:
-	rm -rf ../testing-module-install
+	rm -rf $(TEST_MODULE_INSTALL_DIR)
 
 clean-module:
-	rm -rf $(MODULE_DIR)
+	rm -rf $(PACKAGE_DIR)
 
 clean-node-modules:
 	$(NPM_EXE) $(NPM_ARGS) prune &
@@ -174,19 +174,19 @@ db-modules:
 	$(NPM_EXE) install "sqlite3@^3.1"
 
 module: db-modules js bin test
-	mkdir -p $(MODULE_DIR)
-	cp $(PACKAGE_JSON) $(MODULE_DIR)
-	cp -r bin $(MODULE_DIR)
-	cp README.md $(MODULE_DIR)
-	cp LICENSE.txt $(MODULE_DIR)
-	cp -r lib $(MODULE_DIR)
-	cp Makefile $(MODULE_DIR)
-	find module -type f -name "*.litcoffee-toc" -exec rm -f {} \;
-	find module -type f -name "*.md-toc" -exec rm -f {} \;
-	find module -type f -name "*.x" -exec rm -f {} \;
+	mkdir -p $(PACKAGE_DIR)
+	cp $(PACKAGE_JSON) $(PACKAGE_DIR)
+	cp -r bin $(PACKAGE_DIR)
+	cp README.md $(PACKAGE_DIR)
+	cp LICENSE.txt $(PACKAGE_DIR)
+	cp -r lib $(PACKAGE_DIR)
+	cp Makefile $(PACKAGE_DIR)
+	find $(PACKAGE_DIR) -type f -name "*.litcoffee-toc" -exec rm -f {} \;
+	find $(PACKAGE_DIR) -type f -name "*.md-toc" -exec rm -f {} \;
+	find $(PACKAGE_DIR) -type f -name "*.x" -exec rm -f {} \;
 
 test-module-install: clean-test-module-install module
-	mkdir ../testing-module-install; cd ../testing-module-install; npm install "$(CURDIR)/module"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf ../testing-module-install && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
+	mkdir $(TEST_MODULE_INSTALL_DIR); cd $(TEST_MODULE_INSTALL_DIR); npm install "$(CURDIR)/$(PACKAGE_DIR)"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf $(TEST_MODULE_INSTALL_DIR) && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
 
 $(NODE_MODULES): $(PACKAGE_JSON)
 	$(NPM_EXE) $(NPM_ARGS) prune
@@ -229,7 +229,27 @@ test: $(MOCHA_TESTS) $(NODE_MODULES)
 test-watch: $(MOCHA_TESTS) $(NODE_MODULES)
 	$(MOCHA_EXE) --watch $(MOCHA_TEST_ARGS) ${MOCHA_EXTRA_ARGS} $(MOCHA_TESTS)
 
-coverage: $(COFFEE_SRCS) $(COFFEE_TEST_SRCS) $(MOCHA_TESTS) $(NODE_MODULES)
+define COVERAGE_SUMMARY
+stew = new (require("stew-select")).Stew()
+html = require("fs").readFileSync("$(COVERAGE_REPORT)").toString()
+stew.select_first html, "#stats", (err,node)->
+  if err?
+    console.err "Encountered error attempting to parse summary from coverage report", err
+  inner = stew.dom_util.inner_html(node)
+  stew.select inner, "div", (err,nodes)->
+    if err?
+      console.err "Encountered error attempting to parse summary from coverage report", err
+    nodes = nodes.map (x)->stew.dom_util.to_text(x)
+    console.log ""
+    console.log "Coverage:",nodes[0]
+    console.log "    SLOC:",nodes[1]
+    console.log "    Hits:",nodes[2]
+    console.log "  Misses:",nodes[3]
+    console.log ""
+endef
+export COVERAGE_SUMMARY
+
+coverage: $(COFFEE_SRCS) $(COFFEE_TEST_SRCS) $(MOCHA_TESTS) $(NODE_MODULES) db-modules
 	rm -rf $(COVERAGE_TMP_DIR)
 	rm -rf $(LIB_COV)
 	mkdir -p $(COVERAGE_TMP_DIR)
@@ -239,6 +259,9 @@ coverage: $(COFFEE_SRCS) $(COFFEE_TEST_SRCS) $(MOCHA_TESTS) $(NODE_MODULES)
 	$(MOCHA_EXE) $(MOCHA_COV_ARGS) $(MOCHA_TESTS) > $(COVERAGE_REPORT)
 	rm -rf $(COVERAGE_TMP_DIR)
 	rm -rf $(LIB_COV)
+	@$(COFFEE_EXE) -e "$$COVERAGE_SUMMARY"
+	@echo "Coverage report generated at $(COVERAGE_REPORT).\n"
+	@echo "USE: open $(COVERAGE_REPORT)"
 
 ################################################################################
 # MARKDOWN & OTHER DOC TARGETS
