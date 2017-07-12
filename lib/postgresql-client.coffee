@@ -7,6 +7,8 @@ SQLClient         = require( path.join(LIB_DIR,'sql-client') ).SQLClient
 SQLClientPool     = require( path.join(LIB_DIR,'sql-client-pool') ).SQLClientPool
 ConnectionFactory = require( path.join(LIB_DIR,'connection-factory') ).ConnectionFactory
 pg                = require('pg')
+Url               = require 'url'
+querystring       = require 'querystring'
 
 try
   unless pg.__lookupGetter__("native")?
@@ -47,12 +49,50 @@ exports.PostgreSQLClientPool = PostgreSQLClientPool
 class PostgreSQLConnectionFactory2 extends PostgreSQLConnectionFactory
   constructor:()->
     super()
+    @pg_pools_by_connect_string = {}
+
+  _connect_string_regexp:/^([^:]+):\/\/([^:]+):([^@]+)@([^:\/]+)(:([0-9]+))?(.*)$/
+
+  _parse_connect_string:(connect_string)=>
+    if typeof connect_string is 'string' and @_connect_string_regexp.test(connect_string)
+      matches = connect_string.match(@_connect_string_regexp)
+      config = {}
+      config.database = matches[1]
+      config.user = matches[2]
+      config.password = matches[3]
+      config.host = matches[4]
+      if matches[6]?
+        config.port = parseInt(matches[6])
+      path = matches[7]
+      parsed_path = Url.parse(path)
+      config.database = parsed_path.pathname.substring(1)
+      if parsed_path.query?
+        qs = querystring.parse(parsed_path.query)
+        for name, value of qs
+          if value is 'true'
+            value = true
+          else if value is 'false'
+            value = false
+          else if "#{value}" is "#{parseInt(value)}"
+            value = parseInt(value)
+          config[name] = value
+      return config
+    else
+      return connect_string
 
   open_connection:(connect_string,callback)=>
-    pg.connect connect_string, (err,client,done_fn)=>
+    key = connect_string
+    unless typeof key is 'string'
+      key = JSON.stringify(key)
+    pg_pool = @pg_pools_by_connect_string[key]
+    unless pg_pool?
+      pg_pool = new pg.Pool(@_parse_connect_string(connect_string))
+      @pg_pools_by_connect_string[key] = pg_pool
+    pg_pool.connect (err,client,done_fn)=>
       connection = client
       if connection?
         connection._sqlclient_done = done_fn
+        connection._pg_pool_key = key
       callback(err,connection)
 
   close_connection:(connection,callback)=>
@@ -76,6 +116,13 @@ class PostgreSQLClientPool2 extends SQLClientPool
       client.disconnect callback
     else
       callback?()
+
+  close:(callback)=>
+    super (args...)=>
+      pools_to_close = @factory?.pg_pools_by_connect_string
+      for key, pg_pool of pools_to_close ? {}
+        pg_pool?.end()
+      callback?(args...)
 
 exports.PostgreSQLConnectionFactory2 = PostgreSQLConnectionFactory2
 exports.PostgreSQLClient2 = PostgreSQLClient2
