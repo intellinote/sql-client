@@ -138,9 +138,9 @@ clean-markdown:
 # NPM TARGETS
 
 db-modules:
-	$(NPM_EXE) install "mysql@^2"
-	$(NPM_EXE) install "pg@^7"
-	$(NPM_EXE) install "sqlite3@^4"
+	$(NPM_EXE) install --no-save "mysql@^2"
+	$(NPM_EXE) install --no-save "pg@^7"
+	$(NPM_EXE) install --no-save "sqlite3@^4"
 
 module: db-modules js bin test
 	mkdir -p $(PACKAGE_DIR)
@@ -149,9 +149,11 @@ module: db-modules js bin test
 	cp README.md $(PACKAGE_DIR)
 	cp LICENSE.txt $(PACKAGE_DIR)
 	cp -r lib $(PACKAGE_DIR)
+	tar -czf $(PACKAGE_DIR).tgz $(PACKAGE_DIR)
+	tar -ztf $(PACKAGE_DIR).tgz
 
 test-module-install: clean-test-module-install module
-	mkdir $(TEST_MODULE_INSTALL_DIR); cd $(TEST_MODULE_INSTALL_DIR); npm install "$(CURDIR)/$(PACKAGE_DIR)"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf $(TEST_MODULE_INSTALL_DIR) && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
+	mkdir $(TEST_MODULE_INSTALL_DIR); cd $(TEST_MODULE_INSTALL_DIR); npm install "$(CURDIR)/$(PACKAGE_DIR).tgz"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && node -e "require('assert').ok(require('sql-client').bin.SQLite3Runner);"  && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf $(TEST_MODULE_INSTALL_DIR) && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
 
 $(NODE_MODULES): $(PACKAGE_JSON)
 	$(NPM_EXE) $(NPM_ARGS) prune
