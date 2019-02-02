@@ -57,6 +57,10 @@ and you can add it to your project as a dependency by adding a line like:
 
 to the `dependencies` or `devDependencies` part of your `package.json` file.
 
+Note: You will also need to install the database you are using in order for this to work
+
+`EX: npm i -S pg`
+
 ## Using
 
 Let's use `MySQLClient` and `MySQLClientPool` as an

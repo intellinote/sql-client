@@ -5,7 +5,7 @@ LIB_COV          = path.join(HOMEDIR,'lib-cov')
 LIB_DIR          = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
 SQLRunner        = require( path.join(LIB_DIR,'sql-runner') ).SQLRunner
 PostgreSQLClient = require( path.join(LIB_DIR,'postgresql-client') ).PostgreSQLClient
-ObjectUtil       = require('inote-util').ObjectUtil
+Util        = require( path.join(LIB_DIR,'util') ).Util
 
 class PostgreSQLRunner extends SQLRunner
   constructor:(connect_string,options)->
@@ -26,7 +26,7 @@ class PostgreSQLRunner extends SQLRunner
     pg_opts = {
       d: { alias: 'db',  describe: "Databse connect string." }
     }
-    super(ObjectUtil.merge(pg_opts,additional))
+    super(Util.merge(pg_opts,additional))
 
   _handle_argv:(argv)=>
     if argv.db?
