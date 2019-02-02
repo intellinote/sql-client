@@ -49,6 +49,6 @@
     "sqlite3-runner": "./bin/sqlite3-runner"
   },
   "engines": {
-    "node": ">=0.10.45"
+    "node": ">=6"
   }
 }
