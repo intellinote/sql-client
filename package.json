@@ -25,9 +25,6 @@
   "author": "Intellinote <https://www.intellinote.net/>",
   "dependencies": {
     "argf": "^0",
-    "mysql": "^2.16.0",
-    "pg": "^7.8.0",
-    "sqlite3": "^4.0.6",
     "yargs": "^12"
   },
   "devDependencies": {
