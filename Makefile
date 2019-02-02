@@ -138,9 +138,9 @@ clean-markdown:
 # NPM TARGETS
 
 db-modules:
-	$(NPM_EXE) install "mysql@^2"
-	$(NPM_EXE) install "pg@^7"
-	$(NPM_EXE) install "sqlite3@^4"
+	$(NPM_EXE) install --no-save "mysql@^2"
+	$(NPM_EXE) install --no-save "pg@^7"
+	$(NPM_EXE) install --no-save "sqlite3@^4"
 
 module: db-modules js bin test
 	mkdir -p $(PACKAGE_DIR)
