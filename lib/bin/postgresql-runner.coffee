@@ -9,13 +9,14 @@ Util        = require( path.join(LIB_DIR,'util') ).Util
 
 class PostgreSQLRunner extends SQLRunner
   constructor:(connect_string,options)->
+    super()
     if connect_string? and typeof connect_string is 'object' and not options?
       options = connect_string
       connect_string = null
     client = null
     if connect_string?
       client = new PostgreSQLClient(connect_string)
-    super(client,options)
+    @_init(client,options)
 
   set_client:(client)=>
     unless client.execute?

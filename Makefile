@@ -34,33 +34,8 @@ TEST ?= $(wildcard test/test-*.coffee)
 MOCHA_TESTS ?= $(TEST)
 MOCHA_TEST_PATTERN ?=
 MOCHA_TIMEOUT ?=-t 3000
-MOCHA_TEST_ARGS  ?= -R list --compilers coffee:coffee-script/register $(MOCHA_TIMEOUT) $(MOCHA_TEST_PATTERN)
+MOCHA_TEST_ARGS  ?= -R list --compilers coffee:coffeescript/register $(MOCHA_TIMEOUT) $(MOCHA_TEST_PATTERN)
 MOCHA_EXTRA_ARGS ?=
-
-# COVERAGE #####################################################################
-LIB ?= lib
-LIB_COV ?= lib-cov
-COVERAGE_REPORT ?= docs/coverage.html
-COVERAGE_TMP_DIR ?=  ./cov-tmp
-COVERAGE_EXE ?= ./node_modules/.bin/coffeeCoverage
-COVERAGE_ARGS ?= -e migration --initfile $(LIB_COV)/coffee-coverage-init.js
-MOCHA_COV_ARGS  ?= --require $(LIB_COV)/coffee-coverage-init.js --globals "_\$$jscoverage" --compilers coffee:coffee-script/register -R html-cov -t 20000
-
-# MARKDOWN #####################################################################
-MARKDOWN_TOC ?= ./node_modules/.bin/toc
-MARKDOWN_SRCS ?= $(shell find . -type f -name '*.md' | grep -v node_modules | grep -v module | grep -v sqlclient-v)
-MARKDOWN_TOCED ?= ${MARKDOWN_SRCS:.md=.md-toc}
-MARKDOWN_PROCESSOR ?= node -e "var h=require('highlight.js'),m=require('marked'),c='';process.stdin.on('data',function(b){c+=b.toString();});process.stdin.on('end',function(){m.setOptions({gfm:true,highlight:function(x,l){if(l){return h.highlight(l,x).value;}else{return x;}}});console.log(m(c))});process.stdin.resume();"
-MARKDOWN_HTML ?= ${MARKDOWN_TOCED:.md-toc=.html}
-MARKDOWN_PREFIX ?= "<html><head><style>`cat docs/styles/markdown.css`</style><body>"
-MARKDOWN_SUFFIX ?= "</body></html>"
-LITCOFFEE_PROCESSOR ?= node -e "var h=require('highlight.js'),m=require('marked'),c='';process.stdin.on('data',function(b){c+=b.toString();});process.stdin.on('end',function(){m.setOptions({gfm:true,highlight:function(x){return h.highlight('coffee',x).value;}});console.log(m(c))});process.stdin.resume();"
-LITCOFFEE_SRCS ?= $(shell find . -type f -name '*.litcoffee' | grep -v node_modules | grep -v module | grep -v sqlclient-v)
-LITCOFFEE_HTML ?= ${LITCOFFEE_SRCS:.litcoffee=.html}
-LITCOFFEE_TOCED ?= ${LITCOFFEE_SRCS:.litcoffee=.md-toc}
-
-# OTHER ########################################################################
-DOCCO_EXE ?= ./node_modules/.bin/docco
 
 ################################################################################
 # META-TARGETS AND SIMILAR
@@ -148,12 +123,6 @@ really-clean-node-modules: # deletes rather that simply pruning node_modules
 clean-js:
 	rm -f $(COFFEE_JS) $(COFFEE_TEST_JS)
 
-clean-coverage:
-	rm -rf $(JSCOVERAGE_TMP_DIR)
-	rm -rf $(LIB_COV)
-	rm -f $(COVERAGE_REPORT)
-	(rmdir --ignore-fail-on-non-empty docs) || true
-
 clean-docs: clean-markdown clean-docco
 
 clean-docco:
@@ -169,9 +138,9 @@ clean-markdown:
 # NPM TARGETS
 
 db-modules:
-	$(NPM_EXE) install "mysql@^2.12"
-	$(NPM_EXE) install "pg@^6.1"
-	$(NPM_EXE) install "sqlite3@^3.1"
+	$(NPM_EXE) install "mysql@^2"
+	$(NPM_EXE) install "pg@^7"
+	$(NPM_EXE) install "sqlite3@^4"
 
 module: db-modules js bin test
 	mkdir -p $(PACKAGE_DIR)
@@ -180,10 +149,6 @@ module: db-modules js bin test
 	cp README.md $(PACKAGE_DIR)
 	cp LICENSE.txt $(PACKAGE_DIR)
 	cp -r lib $(PACKAGE_DIR)
-	cp Makefile $(PACKAGE_DIR)
-	find $(PACKAGE_DIR) -type f -name "*.litcoffee-toc" -exec rm -f {} \;
-	find $(PACKAGE_DIR) -type f -name "*.md-toc" -exec rm -f {} \;
-	find $(PACKAGE_DIR) -type f -name "*.x" -exec rm -f {} \;
 
 test-module-install: clean-test-module-install module
 	mkdir $(TEST_MODULE_INSTALL_DIR); cd $(TEST_MODULE_INSTALL_DIR); npm install "$(CURDIR)/$(PACKAGE_DIR)"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf $(TEST_MODULE_INSTALL_DIR) && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
@@ -226,84 +191,26 @@ clean-bin:
 test: $(MOCHA_TESTS) $(NODE_MODULES)
 	$(MOCHA_EXE) $(MOCHA_TEST_ARGS) ${MOCHA_EXTRA_ARGS} $(MOCHA_TESTS)
 
-test-watch: $(MOCHA_TESTS) $(NODE_MODULES)
-	$(MOCHA_EXE) --watch $(MOCHA_TEST_ARGS) ${MOCHA_EXTRA_ARGS} $(MOCHA_TESTS)
-
-define COVERAGE_SUMMARY
-stew = new (require("stew-select")).Stew()
-html = require("fs").readFileSync("$(COVERAGE_REPORT)").toString()
-stew.select_first html, "#stats", (err,node)->
-  if err?
-    console.err "Encountered error attempting to parse summary from coverage report", err
-  inner = stew.dom_util.inner_html(node)
-  stew.select inner, "div", (err,nodes)->
-    if err?
-      console.err "Encountered error attempting to parse summary from coverage report", err
-    nodes = nodes.map (x)->stew.dom_util.to_text(x)
-    console.log ""
-    console.log "Coverage:",nodes[0]
-    console.log "    SLOC:",nodes[1]
-    console.log "    Hits:",nodes[2]
-    console.log "  Misses:",nodes[3]
-    console.log ""
-endef
-export COVERAGE_SUMMARY
-
-coverage: $(COFFEE_SRCS) $(COFFEE_TEST_SRCS) $(MOCHA_TESTS) $(NODE_MODULES) db-modules
-	rm -rf $(COVERAGE_TMP_DIR)
-	rm -rf $(LIB_COV)
-	mkdir -p $(COVERAGE_TMP_DIR)
-	cp -r $(LIB)/* $(COVERAGE_TMP_DIR)/.
-	$(COVERAGE_EXE) $(COVERAGE_ARGS) $(COVERAGE_TMP_DIR) $(LIB_COV)
-	mkdir -p `dirname $(COVERAGE_REPORT)`
-	$(MOCHA_EXE) $(MOCHA_COV_ARGS) $(MOCHA_TESTS) > $(COVERAGE_REPORT)
-	rm -rf $(COVERAGE_TMP_DIR)
-	rm -rf $(LIB_COV)
-	@$(COFFEE_EXE) -e "$$COVERAGE_SUMMARY"
-	@echo "Coverage report generated at $(COVERAGE_REPORT).\n"
-	@echo "USE: open $(COVERAGE_REPORT)"
-
 ################################################################################
-# MARKDOWN & OTHER DOC TARGETS
-
-docs: markdown docco
-
-.SUFFIXES: .md-toc .md
-.md.md-toc:
-	cp "$<" "$@"
-	$(MARKDOWN_TOC) "$@"
-$(MARKDOWN_TOCCED_OBJ): $(MARKDOWN_SRCS)
-
-# (echo $(MARKDOWN_PREFIX) > $@) && ($(MARKDOWN_PROCESSOR) $(MARKDOWN_PROCESSOR_ARGS) $< | sed "s/<!-- toc -->/<div id=TofC>/"  | sed "s/<!-- toc stop -->/<\/div>/" >> $@) && (echo $(MARKDOWN_SUFFIX) >> $@)
-.SUFFIXES: .html .md-toc
-.md-toc.html:
-	(echo $(MARKDOWN_PREFIX) > $@) && (cat "$<" | $(MARKDOWN_PROCESSOR) | sed "s/<!-- toc -->/<div id=TofC>/"  | sed "s/<!-- toc stop -->/<div style=\"font-size: 0.9em; text-align: right\"><a href=\".\" >[up]<\/a> <a href=\"javascript:back(-1)\">[back]<\/a><\/div><\/div>/" >> $@) && (echo $(MARKDOWN_SUFFIX) >> $@)
-$(MARKDOWN_HTML_OBJ): $(MARKDOWN_TOCCED_OBJ)
-
-.SUFFIXES: .litcoffee-toc .litcoffee
-.litcoffee.litcoffee-toc:
-	cp "$<" "$@"
-	$(MARKDOWN_TOC) "$@"
-$(LITCOFFEE_TOCCED_OBJ): $(LITCOFFEE_SRCS)
-
-.SUFFIXES: .html .litcoffee-toc
-.litcoffee-toc.html:
-	 (echo $(MARKDOWN_PREFIX) > $@) && (cat "$<" | $(LITCOFFEE_PROCESSOR) | sed "s/<!-- toc -->/<div id=TofC>/"  | sed "s/<!-- toc stop -->/<div style=\"font-size: 0.9em; text-align: right\"><a href=\".\" >[up]<\/a> <a href=\"javascript:back(-1)\">[back]<\/a><\/div><\/div>/" >> $@) && (echo $(MARKDOWN_SUFFIX) >> $@)
- $(LITCOFFEE_HTML_OBJ): $(LITCOFFEE_TOCCED_OBJ)  docs/styles/markdown.css
-
-$(MARKDOWN_HTML): docs/styles/markdown.css
-$(LITCOFFEE_HTML): docs/styles/markdown.css
-markdown: $(MARKDOWN_HTML) $(LITCOFFEE_HTML) $(NODE_MODULES)
-
-html: markdown
-
-docco: $(COFFEE_SRCS) $(NODE_MODULES)
-	rm -rf docs/docco
-	mkdir -p docs
-	mv docs docs-temporarily-renamed-so-docco-doesnt-clobber-it
-	$(DOCCO_EXE) $(COFFEE_SRCS)
-	mv docs docs-temporarily-renamed-so-docco-doesnt-clobber-it/docco
-	mv docs-temporarily-renamed-so-docco-doesnt-clobber-it docs
+#### NYC TEST COVERAGE #########################################################
+###################################################################### config ##
+NYC_COVERAGE_DIR ?= ./docs/coverage
+NYC_COVERAGE_TMP_DIR ?= ./.nyc_output
+NYC_ARGS ?= --report-dir $(NYC_COVERAGE_DIR) --reporter=html --reporter=text-summary --extension .coffee
+NYC_EXE ?= ./node_modules/.bin/nyc
+NYC_COVERAGE_MOCHA_ARGS  ?= -R spec --compilers coffee:coffeescript/register $(MOCHA_TIMEOUT) $(MOCHA_TEST_PATTERN)
+##################################################################### targets ##
+coverage: package.json node_modules $(COFFEE_SRCS) $(COFFEE_TEST_SRCS)
+	rm -rf $(NYC_COVERAGE_DIR) $(NYC_COVERAGE_TMP_DIR)
+	mkdir -p $(COVERAGE_DIR)
+	$(NYC_EXE) $(NYC_ARGS) $(MOCHA_EXE) $(NYC_COVERAGE_MOCHA_ARGS) $(MOCHA_TESTS)
+	@echo "Coverage report generated at $(NYC_COVERAGE_DIR)/index.html.\n"
+	@echo "USE: open $(NYC_COVERAGE_DIR)/index.html"
+#------------------------------------------------------------------------------#
+clean-coverage:
+	rm -rf $(NYC_COVERAGE_DIR) $(NYC_COVERAGE_TMP_DIR)
+	((rmdir docs 2> /dev/null) || true) # remove docs dir if empty
+################################################################################
 
 .SUFFIXES: .coffee
 .coffee:

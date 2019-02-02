@@ -24,27 +24,23 @@
   "license": "MIT",
   "author": "Intellinote <https://www.intellinote.net/>",
   "dependencies": {
-    "argf": "^0.0",
+    "argf": "^0",
+    "mysql": "^2.16.0",
     "pg": "^7.8.0",
+    "sqlite3": "^4.0.6",
     "yargs": "^12"
   },
   "devDependencies": {
-    "coffee-coverage": "^1.0",
-    "coffee-script": "^1.10",
-    "docco": "^0.7",
-    "highlight.js": "^9.6",
-    "htmlparser": "^1",
-    "marked-toc": "^0.3",
-    "marked": "^0.3",
-    "mocha": "^2.2",
-    "should": "^11.1",
-    "stew-select": "^0"
+    "coffeescript": "^2",
+    "mocha": "^2",
+    "nyc": "^13",
+    "should": "^11.1"
   },
   "databaseSpecificDependencies": {
     "// NOTE": "Enable one or more of these to test the corresponding database client.",
-    "mysql": "^2.12",
-    "sqlite3": "^3.1",
-    "pg": "^6.1"
+    "mysql": "^2",
+    "sqlite3": "^4",
+    "pg": "^7"
   },
   "main": "lib/index.js",
   "scripts": {

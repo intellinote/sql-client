@@ -1,4 +1,3 @@
-fs                = require 'fs'
 path              = require 'path'
 should_continue = true
 try
@@ -12,12 +11,9 @@ catch err
   should_continue = false
 
 if should_continue
-  HOMEDIR           = path.join(__dirname,'..')
-  LIB_COV           = path.join(HOMEDIR,'lib-cov')
-  LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
-  pg                = require( path.join(LIB_DIR,'postgresql-client') )
+  pg                = require( '../lib/postgresql-client')
   should            = require('should')
-  Util              = require( path.join(LIB_DIR,'util') ).Util
+  Util              = require( '../lib/util' ).Util
 
   describe 'PostgreSQL',->
 

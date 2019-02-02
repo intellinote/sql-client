@@ -1,10 +1,5 @@
-fs                = require 'fs'
-path              = require 'path'
-HOMEDIR           = path.join(__dirname,'..')
-LIB_COV           = path.join(HOMEDIR,'lib-cov')
-LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
-ConnectionFactory = require( path.join(LIB_DIR,'connection-factory') ).ConnectionFactory
-SQLClient         = require( path.join(LIB_DIR,'sql-client') ).SQLClient
+ConnectionFactory = require( '../lib/connection-factory' ).ConnectionFactory
+SQLClient         = require( '../lib/sql-client' ).SQLClient
 should            = require('should')
 
 describe 'SQLClient',->

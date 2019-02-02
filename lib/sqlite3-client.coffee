@@ -1,11 +1,6 @@
-fs                = require 'fs'
-path              = require 'path'
-HOMEDIR           = path.join(__dirname,'..')
-LIB_COV           = path.join(HOMEDIR,'lib-cov')
-LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
-SQLClient         = require( path.join(LIB_DIR,'sql-client') ).SQLClient
-SQLClientPool     = require( path.join(LIB_DIR,'sql-client-pool') ).SQLClientPool
-ConnectionFactory = require( path.join(LIB_DIR,'connection-factory') ).ConnectionFactory
+SQLClient         = require( './sql-client' ).SQLClient
+SQLClientPool     = require( './sql-client-pool' ).SQLClientPool
+ConnectionFactory = require( './connection-factory' ).ConnectionFactory
 sqlite3           = require('sqlite3').verbose()
 
 class SQLite3ConnectionFactory extends ConnectionFactory

@@ -12,10 +12,7 @@ catch err
   should_continue = false
 
 if should_continue
-  HOMEDIR           = path.join(__dirname,'..')
-  LIB_COV           = path.join(HOMEDIR,'lib-cov')
-  LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
-  mysql             = require( path.join(LIB_DIR,'mysql-client') )
+  mysql             = require( '../lib/mysql-client' )
   should            = require('should')
 
   describe 'MySQL',->

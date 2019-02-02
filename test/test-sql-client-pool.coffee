@@ -10,6 +10,7 @@ should            = require('should')
 
 class MockConnectionFactory extends ConnectionFactory
   constructor:(@mock_connection = {}, @mock_error = null, @mock_result = {})->
+    super()
     @mock_connection.open_count ?= 0
     @mock_connection.close_count ?= 0
     @mock_connection.executed ?= []

@@ -12,12 +12,9 @@ catch err
   should_continue = false
 
 if should_continue
-  HOMEDIR           = path.join(__dirname,'..')
-  LIB_COV           = path.join(HOMEDIR,'lib-cov')
-  LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
-  pg                = require( path.join(LIB_DIR,'postgresql-client') )
   should            = require('should')
-  Util              = require( path.join(LIB_DIR,'Util') ).Util
+  pg                = require( '../lib/postgresql-client' )
+  Util              = require( '../lib/util' ).Util
 
   describe 'PostgreSQL2',->
 
@@ -68,7 +65,7 @@ if should_continue
       database_available (available)->
         if available
 
-          
+
           describe 'Transactions',->
 
             it 'can execute within transactions', (done)->
