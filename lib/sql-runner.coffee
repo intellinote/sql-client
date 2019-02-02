@@ -1,6 +1,5 @@
 fs   = require 'fs'
-Util = require('inote-util').Util
-ObjectUtil = require('inote-util').ObjectUtil
+Util = require('./util').Util
 
 class SQLRunner
 
@@ -67,7 +66,7 @@ class SQLRunner
   }
 
   _get_options:(additional={})=>
-    ObjectUtil.merge(@_BASE_OPTIONS,additional)
+    Util.merge(@_BASE_OPTIONS,additional)
 
   _handle_argv:(argv)=>
     argv.v = argv.verbose = false if argv.quiet

@@ -121,7 +121,8 @@ class PostgreSQLClientPool2 extends SQLClientPool
     super (args...)=>
       pools_to_close = @factory?.pg_pools_by_connect_string
       for key, pg_pool of pools_to_close ? {}
-        pg_pool?.end()
+        unless not pg_pool? or (pg_pool.ending or pg_pool.ended)
+          pg_pool.end()
       callback?(args...)
 
 exports.PostgreSQLConnectionFactory2 = PostgreSQLConnectionFactory2

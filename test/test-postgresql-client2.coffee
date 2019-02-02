@@ -17,7 +17,7 @@ if should_continue
   LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
   pg                = require( path.join(LIB_DIR,'postgresql-client') )
   should            = require('should')
-  Util              = require('inote-util').Util
+  Util              = require( path.join(LIB_DIR,'Util') ).Util
 
   describe 'PostgreSQL2',->
 
@@ -68,7 +68,7 @@ if should_continue
       database_available (available)->
         if available
 
-
+          
           describe 'Transactions',->
 
             it 'can execute within transactions', (done)->

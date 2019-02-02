@@ -17,7 +17,7 @@ if should_continue
   LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
   pg                = require( path.join(LIB_DIR,'postgresql-client') )
   should            = require('should')
-  Util              = require('inote-util').Util
+  Util              = require( path.join(LIB_DIR,'util') ).Util
 
   describe 'PostgreSQL',->
 
