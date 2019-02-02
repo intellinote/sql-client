@@ -153,7 +153,7 @@ module: db-modules js bin test
 	tar -ztf $(PACKAGE_DIR).tgz
 
 test-module-install: clean-test-module-install module
-	mkdir $(TEST_MODULE_INSTALL_DIR); cd $(TEST_MODULE_INSTALL_DIR); npm install "$(CURDIR)/$(PACKAGE_DIR).tgz"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf $(TEST_MODULE_INSTALL_DIR) && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
+	mkdir $(TEST_MODULE_INSTALL_DIR); cd $(TEST_MODULE_INSTALL_DIR); npm install "$(CURDIR)/$(PACKAGE_DIR).tgz"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && node -e "require('assert').ok(require('sql-client').bin.SQLite3Runner);"  && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf $(TEST_MODULE_INSTALL_DIR) && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
 
 $(NODE_MODULES): $(PACKAGE_JSON)
 	$(NPM_EXE) $(NPM_ARGS) prune
