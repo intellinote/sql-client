@@ -9,13 +9,14 @@ Util             = require( path.join(LIB_DIR,'util') ).Util
 
 class SQLite3Runner extends SQLRunner
   constructor:(opts,options)->
+    super()
     if opts? and typeof opts is 'object' and not options?
       options = opts
       opts = null
     client = null
     if opts?
       client = new SQLite3Client(opts)
-    super(client,options)
+    @_init(client,options)
 
   set_client:(client)=>
     unless client.execute?

@@ -1,9 +1,4 @@
-fs                = require 'fs'
-path              = require 'path'
-HOMEDIR           = path.join(__dirname,'..')
-LIB_COV           = path.join(HOMEDIR,'lib-cov')
-LIB_DIR           = if fs.existsSync(LIB_COV) then LIB_COV else path.join(HOMEDIR,'lib')
-ConnectionFactory = require( path.join(LIB_DIR,'connection-factory') ).ConnectionFactory
+ConnectionFactory = require( '../lib/connection-factory' ).ConnectionFactory
 should            = require('should')
 
 

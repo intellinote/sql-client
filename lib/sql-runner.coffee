@@ -5,7 +5,11 @@ class SQLRunner
 
   stop_on_error: false
 
-  constructor:(client=null,options={})->
+  constructor:(client,options)->
+    if client? or options?
+      @_init(client,options)
+
+  _init:(client,options)=>
     if client? and not options? and not client.execute?
       options = client
       client = null
@@ -87,19 +91,19 @@ class SQLRunner
     logfn ?= console.log
     errfn ?= console.error
     callback ?= process.exit
-    # swap out process.argv so that optimist reads the function argument
+    # swap out process.argv so that yargs reads the function argument
     original_argv = process.argv
     process.argv = argv
     # perform the rest of the operation in a try block so we can be
     # sure to restore process.argv when we're finished.
     try
-      # read command line parameters using node-optimist
-      optimist = require('optimist')
-      argv = optimist.usage('Usage: $0 ...', @_get_options()).argv
+      # read command line parameters using node-yargs
+      yargs = require('yargs')
+      argv = yargs.options(@_get_options()).usage('Usage: $0 [OPTIONS]').argv
       argv = @_handle_argv(argv)
       # handle help
       if argv.help
-        optimist.showHelp(errfn)
+        yargs.showHelp(errfn)
         callback()
       else
         # make sure we've got a client to run with

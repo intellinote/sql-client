@@ -1,3 +1,5 @@
+sql-client-*
+package-lock.json
 *.html
 docco
 lib-cov
