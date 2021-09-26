@@ -9,6 +9,12 @@ class MySQLConnectionFactory extends ConnectionFactory
     connection.connect (err)=>
       callback(err,connection)
 
+  close_connection:(connection,callback)=>
+    if typeof connection?.end is 'function'
+      connection.end(callback)
+    else
+      super(connection,callback)
+
 class MySQLClient extends SQLClient
   constructor:(options...)->
     super(options...,new MySQLConnectionFactory())
