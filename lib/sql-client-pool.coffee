@@ -1,4 +1,4 @@
-SQLClient         = require( './sql-client' ).SQLClient
+SQLClient = require( './sql-client' ).SQLClient
 
 class SQLClientPool
 
@@ -316,21 +316,32 @@ class SQLClientPool
 
 class Transaction
 
-  constructor:(@_pool)->
-    undefined
+  constructor:(pool_or_client)->
+    if pool_or_client? and pool_or_client instanceof SQLClientPool
+      @_pool = pool_or_client
+    else if pool_or_client? and pool_or_client instanceof SQLClient
+      @_client = pool_or_client
+    else
+      throw new Error("Expected SQLClientPool or SQLClient instance, found #{pool_or_client}")
 
   begin:(callback)=>
     @execute "BEGIN", [], (r...)=>
       @_began = true
       callback(r...)
 
-  _end:(command,callback)=>
+  _end:(command,options,callback)=>
+    if typeof options is "function" and not callback?
+      [callback, options] = [options, callback]
     maybe_return = (cb)=>
+      @_ended = true
       if @_pool? and @_client?
         @_pool.return @_client, ()=>
           @_pool = null
           @_client = null
           cb?()
+      else if @_client? and @_client?._auto_disconnect_on_transaction_end
+        @_client.disconnect(options,cb)
+        @_client = null
       else
         cb?()
     if @_began
@@ -341,32 +352,57 @@ class Transaction
       maybe_return ()=>
         callback()
 
-  rollback:(callback)=>
-    @_end "ROLLBACK", callback
+  rollback:(options, callback)=>
+    if typeof options is "function" and not callback?
+      [callback, options] = [options, callback]
+    if @_ended
+      callback(new Error("This transaction has already been closed."))
+    else
+      @_end "ROLLBACK", options, callback
 
-  commit:(callback)=>
-    @_end "COMMIT", callback
+  commit:(options, callback)=>
+    if typeof options is "function" and not callback?
+      [callback, options] = [options, callback]
+    if @_ended
+      callback(new Error("This transaction has already been closed."))
+    else
+      @_end "COMMIT", options, callback
+
+  rollback_and_end:(callback)=>
+    return @rollback({end_pg_pool:true},callback)
+
+  commit_and_end:(callback)=>
+    return @commit({end_pg_pool:true},callback)
 
   _borrow:(callback)=>
     if @_client?
-      callback(null,@_client)
+      unless @_client.connected_at?
+        @_client.connect (err)=>
+          @_client._auto_disconnect_on_transaction_end = true
+          callback(err, @_client)
+      else
+        callback(null,@_client)
+    else unless @_pool?
+      callback(new Error("No SQLClient or SQLClientPool from which to obtain a connection. This transaction may have already been closed."))
     else
-      unless @_pool?
-        callback(new Error("This transaction has already been closed."))
-      else
-        @_pool.borrow (err,client)=>
-          if err?
-            callback(err)
-          else
-            @_client = client
-            callback(null,client)
+      @_pool.borrow (err,client)=>
+        if err?
+          callback(err)
+        else
+          @_client = client
+          callback(null,client)
 
-  execute:(sql,params,callback)=>
-    @_borrow (err,client)=>
-      if err?
-        callback(err)
-      else
-        client.execute sql, params, callback
+  execute:(sql,bindvars,callback)=>
+    if typeof bindvars is 'function' and (not callback?)
+      [callback,bindvars] = [bindvars,callback]
+    if @_ended
+      callback(new Error("This transaction has already been closed."))
+    else
+      @_borrow (err,client)=>
+        if err?
+          callback(err)
+        else
+          client.execute sql, bindvars, callback
 
 exports.SQLClientPool = SQLClientPool
 exports.Transaction   = Transaction

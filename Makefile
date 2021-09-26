@@ -34,7 +34,7 @@ TEST ?= $(wildcard test/test-*.coffee)
 MOCHA_TESTS ?= $(TEST)
 MOCHA_TEST_PATTERN ?=
 MOCHA_TIMEOUT ?=-t 3000
-MOCHA_TEST_ARGS  ?= -R list --compilers coffee:coffeescript/register $(MOCHA_TIMEOUT) $(MOCHA_TEST_PATTERN)
+MOCHA_TEST_ARGS ?= -R list --require coffeescript/register $(MOCHA_TIMEOUT) $(MOCHA_TEST_PATTERN)
 MOCHA_EXTRA_ARGS ?=
 
 ################################################################################
@@ -55,7 +55,7 @@ targets:
 
 # `todo` - list todo and related comments found in source files
 todo:
-	@grep -C 0 --exclude-dir=node_modules --exclude-dir=.git --exclude=#*# --exclude=.#* --exclude=*.html  --exclude=Makefile  -IrHE "(TODO)|(FIXME)|(XXX)" *
+	@grep -C 0 --exclude-dir=node_modules --exclude-dir=.git --exclude=#*# --exclude=.#* --exclude=*.html --exclude=Makefile -IrHE "(TODO)|(FIXME)|(XXX)" *
 
 
 # `FIND-CHANGE-ME` - list the `CHANGE-ME` markers that indicate places where the repository template needs to be modified when creating a new project
@@ -76,11 +76,6 @@ help:
 	@echo "AUTOMATED TESTS"
 	@echo " test         - run the unit-test suite"
 	@echo " coverage     - generate a unit-test coverage report"
-	@echo ""
-	@echo "DOCUMENTATION"
-	@echo " markdown     - generate HTML versions of various *.md and *.litcoffee files"
-	@echo " docco        - generate annotated source code view using docco"
-	@echo " docs         - generate all of the above"
 	@echo ""
 	@echo "BUILD"
 	@echo " js           - generate JavaScript files from CoffeeScript files"
@@ -139,8 +134,8 @@ clean-markdown:
 
 db-modules:
 	$(NPM_EXE) install --no-save "mysql@^2"
-	$(NPM_EXE) install --no-save "pg@^7"
-	$(NPM_EXE) install --no-save "sqlite3@^4"
+	$(NPM_EXE) install --no-save "pg@^8"
+	$(NPM_EXE) install --no-save "sqlite3@^5"
 
 module: db-modules js bin test
 	mkdir -p $(PACKAGE_DIR)
@@ -153,7 +148,7 @@ module: db-modules js bin test
 	tar -ztf $(PACKAGE_DIR).tgz
 
 test-module-install: clean-test-module-install module
-	mkdir $(TEST_MODULE_INSTALL_DIR); cd $(TEST_MODULE_INSTALL_DIR); npm install "$(CURDIR)/$(PACKAGE_DIR).tgz"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && node -e "require('assert').ok(require('sql-client').bin.SQLite3Runner);"  && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf $(TEST_MODULE_INSTALL_DIR) && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
+	mkdir $(TEST_MODULE_INSTALL_DIR); cd $(TEST_MODULE_INSTALL_DIR); npm install "$(CURDIR)/$(PACKAGE_DIR).tgz"; node -e "require('assert').ok(require('sql-client').SQLClient);" && (npm install sqlite3 && node -e "require('assert').ok(require('sql-client').bin.SQLite3Runner);" && echo "SELECT 3+5 as FOO" | ./node_modules/.bin/sqlite3-runner --db ":memory:") && cd $(CURDIR) && rm -rf $(TEST_MODULE_INSTALL_DIR) && echo "\n\n\n<<<<<<< It worked! >>>>>>\n\n\n"
 
 $(NODE_MODULES): $(PACKAGE_JSON)
 	$(NPM_EXE) $(NPM_ARGS) prune
@@ -200,11 +195,11 @@ NYC_COVERAGE_DIR ?= ./docs/coverage
 NYC_COVERAGE_TMP_DIR ?= ./.nyc_output
 NYC_ARGS ?= --report-dir $(NYC_COVERAGE_DIR) --reporter=html --reporter=text-summary --extension .coffee
 NYC_EXE ?= ./node_modules/.bin/nyc
-NYC_COVERAGE_MOCHA_ARGS  ?= -R spec --compilers coffee:coffeescript/register $(MOCHA_TIMEOUT) $(MOCHA_TEST_PATTERN)
+NYC_COVERAGE_MOCHA_ARGS ?= -R spec --require coffeescript/register $(MOCHA_TIMEOUT) $(MOCHA_TEST_PATTERN)
 ##################################################################### targets ##
 coverage: package.json node_modules $(COFFEE_SRCS) $(COFFEE_TEST_SRCS)
 	rm -rf $(NYC_COVERAGE_DIR) $(NYC_COVERAGE_TMP_DIR)
-	mkdir -p $(COVERAGE_DIR)
+	mkdir -p $(NYC_COVERAGE_DIR)
 	$(NYC_EXE) $(NYC_ARGS) $(MOCHA_EXE) $(NYC_COVERAGE_MOCHA_ARGS) $(MOCHA_TESTS)
 	@echo "Coverage report generated at $(NYC_COVERAGE_DIR)/index.html.\n"
 	@echo "USE: open $(NYC_COVERAGE_DIR)/index.html"

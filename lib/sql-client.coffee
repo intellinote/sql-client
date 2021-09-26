@@ -9,8 +9,11 @@ class SQLClient
     @pooled_at = null
     @borrowed_at = null
     @connected_at = null
-    
-  connect:(callback)=>
+
+  connect:(options, callback)=>
+    if typeof options is "function" and not callback?
+      [callback, options] = [options, callback]
+    #
     if DEBUG_CONNECT
       console.log "SQLClient.connect. @connection? #{@connection?}"
     unless @connection?
@@ -24,9 +27,12 @@ class SQLClient
     else
       callback?()
 
-  disconnect:(callback)=>
+  disconnect:(options, callback)=>
+    if typeof options is "function" and not callback?
+      [callback, options] = [options, callback]
+    #
     if DEBUG_CONNECT
-      console.log "SQLClient.disconnect. @connection? #{@connection?}"
+      console.log "SQLClient.disconnect. @connection? #{@connection?}; options:", options
     if @connection?
       @factory.close_connection @connection, (err)=>
         if err?

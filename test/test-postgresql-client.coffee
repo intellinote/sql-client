@@ -8,6 +8,9 @@ catch err
   console.error err
   console.error "The tests in #{path.basename(__filename)} will be skipped."
   console.error ""
+  console.error "You must add the pg library to your devDependencies to enable"
+  console.error "these tests. See `./test/README.md` for details."
+  console.error ""
   should_continue = false
 
 if should_continue
