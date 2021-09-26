@@ -151,29 +151,6 @@ pool.open( function() {
 })
 ```
 
-<!-- toc -->
-
-* [SQL-Client](#sql-client)
-  * [Installing](#installing)
-  * [Using](#using)
-    * [SQLClient](#sqlclient)
-    * [SQLClientPool](#sqlclientpool)
-    * [Transactions](#transactions)
-  * [Contents](#contents)
-    * [Generic Types](#generic-types)
-    * [Database-Specific Types](#database-specific-types)
-    * [Executables](#executables)
-  * [Hacking](#hacking)
-    * [Obtaining Make](#obtaining-make)
-    * [Basics](#basics)
-    * [Using the Makefile](#using-the-makefile)
-  * [Licensing](#licensing)
-  * [How to contribute](#how-to-contribute)
-  * [About Intellinote](#about-intellinote)
-    * [Work with Us](#work-with-us)
-
-<!-- tocstop -->
-
 ## Installing
 
 ### Via NPM
