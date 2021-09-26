@@ -45,13 +45,23 @@ default port, you can create this account by running:
 
     sudo su postgres -c "psql -Upostgres -f  ./test/create-postgresql-test-db.sql"
 
-which will execute the
+or, alternatively, something like:
+
+    psql -U<YOUR-USERNAME> -dpostgres -f  ./test/create-postgresql-test-db.sql
+
+(if the `postgres` user is not recognized).
+
+This will execute the
 [create-postgresql-test-db.sql](./create-postgresql-test-db.sql)
 script.
 
 Should you want to remove this test user and database, you can run:
 
     sudo su postgres -c "psql -Upostgres -f  ./test/drop-postgresql-test-db.sql"
+
+or:
+
+    psql -U<YOUR-USERNAME> -dpostgres -f  ./test/drop-postgresql-test-db.sql
 
 which will execute the
 [drop-postgresql-test-db.sql](./drop-postgresql-test-db.sql)

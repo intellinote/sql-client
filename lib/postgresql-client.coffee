@@ -88,6 +88,7 @@ class PostgreSQLConnectionFactory2 extends PostgreSQLConnectionFactory
       if connection?
         connection._sqlclient_done = done_fn
         connection._pg_pool_key = key
+        connection._pg_pool = pg_pool
       callback(err,connection)
 
   close_connection:(connection,callback)=>
@@ -101,6 +102,18 @@ class PostgreSQLClient2 extends SQLClient
   constructor:(options...)->
     super(options...,new PostgreSQLConnectionFactory2())
 
+  disconnect:(options, callback)=>
+    if typeof options is "function" and not callback?
+      [callback, options] = [options, callback]
+    if options?.end_pg_pool
+      pg_pool_to_end = @connection?._pg_pool
+    return super options, (err)=>
+      if (typeof pg_pool_to_end?.end is "function") and not (pg_pool_to_end.ending or pg_pool_to_end.ended)
+        pg_pool_to_end.end()
+      callback(err)
+
+  disconnect_and_end:(callback)=>
+    return @disconnect {end_pg_pool:true}, callback
 
 class PostgreSQLClientPool2 extends SQLClientPool
   constructor:(options...)->
