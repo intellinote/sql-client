@@ -33,4 +33,6 @@ Notable changes:
 
       * Similar `Transaction.commit_and_end` and `Transaction.rollback_and_end` methods have been added to `Transaction` for the same reason and with the same logic, however this will have no practical effect for transactions based on any `SQLClient` instance other than `PostgreSQLClient2`
 
+    * The `MySQLConnectionFactory` instance now overrides `close_connection` to pass the given callback to the `connection.end` method, addressing [issue #5](https://github.com/intellinote/sql-client/issues/5).
+
   * Other Changes: Both the documentation and test suite have been updated and expanded.
