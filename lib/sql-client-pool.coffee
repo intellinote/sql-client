@@ -105,9 +105,12 @@ class SQLClientPool
       if not @pool_is_open
         callback new Error(@MESSAGES.POOL_NOT_OPEN)
       else
-        if @active >= @pool_options.max_active and @pool_options.when_exhausted is 'fail'
+        @active++
+        if @active > @pool_options.max_active and @pool_options.when_exhausted is 'fail'
+          @active--
           callback new Error(@MESSAGES.EXHAUSTED)
-        else if @active >= @pool_options.max_active and @pool_options.when_exhausted is 'block'
+        else if @active > @pool_options.max_active and @pool_options.when_exhausted is 'block'
+          @active--
           if blocked_since? and (Date.now() - blocked_since) >= @pool_options.max_wait
             callback new Error(@MESSAGES.MAX_WAIT)
           else
@@ -117,23 +120,27 @@ class SQLClientPool
           client = @pool.shift()
           @_activate_and_validate_or_destroy client, (err,valid,client)=>
             if err?
+              @active--
               callback(err)
             else if not valid
+              @active--
               @borrow(callback)
             else
               client.pooled_at = null
               client.borrowed_at = Date.now()
-              @active++
               callback(null,client)
         else
           @create (err,client)=>
             if err?
+              @active--
               callback(err)
             else
               @_activate_and_validate_or_destroy client, (err,valid,client)=>
                 if err?
+                  @active--
                   callback(err)
                 else if not valid
+                  @active--
                   if @pool_options.max_retries? and @pool_options.max_retries > retry_count
                     setTimeout (()=>@borrow(callback,blocked_since,retry_count+1)), (@pool_options.retry_interval ? 0)
                   else
@@ -141,7 +148,6 @@ class SQLClientPool
                 else
                   client.pooled_at = null
                   client.borrowed_at = Date.now()
-                  @active++
                   callback(null,client)
 
   return:(client,callback)=>
